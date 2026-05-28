@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Art Steganography</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>Art Steganography</h1>
+            <p>Sistema Inteligente de Conversión de Imágenes</p>
+            
+            <div class="user-info">
+                <div class="user-greeting">
+                    <span th:text="'Bienvenido, ' + ${userName}">Bienvenido, Usuario</span>
+                </div>
+                <a href="/logout" class="btn-logout-dashboard">Cerrar Sesión</a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <div class="sections-grid">
+                <!-- Tarjeta Art -->
+                <div class="section-card" onclick="navigateTo('/Art')">
+                    <span class="section-icon">🎨</span>
+                    <h3>Convertir Imagen a Texto</h3>
+                    <p>Convierte imágenes en texto utilizando técnicas avanzadas de procesamiento y reconocimiento de caracteres.</p>
+                    
+                    <ul class="features">
+                        <li>Análisis de imágenes</li>
+                        <li>Reconocimiento de texto (OCR)</li>
+                        <li>Exportar en múltiples formatos</li>
+                        <li>Procesamiento de alta calidad</li>
+                    </ul>
+                    
+                    <a href="/Art" class="btn-access">Ir a Conversión</a>
+                </div>
+
+                <!-- Tarjeta Steganography -->
+                <div class="section-card" onclick="navigateTo('/Steganography')">
+                    <span class="section-icon">🔐</span>
+                    <h3>Esteganografía</h3>
+                    <p>Oculta mensajes secretos dentro de imágenes. Perfecto para comunicaciones seguras y privadas.</p>
+                    
+                    <ul class="features">
+                        <li>Ocultar datos en imágenes</li>
+                        <li>Recuperar mensajes ocultos</li>
+                        <li>Encriptación adicional</li>
+                        <li>Máxima privacidad</li>
+                    </ul>
+                    
+                    <a href="/Steganography" class="btn-access">Ir a Esteganografía</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p>&copy; 2026 Art Steganography. Sistema de Conversión e Integración Segura de Imágenes.</p>
+        </footer>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+</html>

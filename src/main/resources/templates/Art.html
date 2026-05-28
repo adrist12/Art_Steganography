@@ -1,10 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de Imágenes a Texto - Art Steganography</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="art-page">
+    <div class="art-container">
+        <!-- Header -->
+        <header class="art-header">
+            <div class="header-content">
+                <h1>Art Steganography</h1>
+                <p>Convertidor de Imágenes a Texto</p>
+            </div>
+            <div class="user-menu">
+                <button class="btn-logout">Cerrar Sesión</button>
+            </div>
+        </header>
 
+        <!-- Main Content -->
+        <main class="art-main">
+            <section class="upload-section">
+                <h2>Convertir Imagen a Texto</h2>
+                <p class="section-description">Sube una imagen y nuestro sistema la convertirá a texto utilizando técnicas avanzadas de procesamiento de imágenes.</p>
+                
+                <form class="upload-form" id="uploadForm" enctype="multipart/form-data">
+                    <!-- Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3>Arrastra tu imagen aquí</h3>
+                        <p>o haz clic para seleccionar</p>
+                        <input 
+                            type="file" 
+                            id="imageInput" 
+                            name="image" 
+                            accept="image/*"
+                            hidden
+                        >
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="preview-section" id="previewSection" style="display: none;">
+                        <h3>Vista Previa</h3>
+                        <img id="previewImage" class="preview-image" alt="Vista previa de imagen">
+                        <button type="button" class="btn-change-image" id="changeImageBtn">Cambiar Imagen</button>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="options-section">
+                        <label for="quality">Calidad de Conversión:</label>
+                        <select id="quality" name="quality" class="quality-select">
+                            <option value="low">Baja (Más rápido)</option>
+                            <option value="medium" selected>Media (Recomendado)</option>
+                            <option value="high">Alta (Más detallado)</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-convert">Convertir Imagen a Texto</button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Resultado</h2>
+                <div class="results-content">
+                    <div class="result-text">
+                        <h3>Texto Extraído:</h3>
+                        <div class="text-output" id="textOutput"></div>
+                        <button class="btn-copy" id="copyBtn">Copiar Texto</button>
+                        <button class="btn-download" id="downloadBtn">Descargar</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="art-footer">
+            <p>&copy; 2024 Art Steganography. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="loading-modal" id="loadingModal" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Procesando imagen...</p>
+        </div>
+    </div>
+
+    <script>
+        // Upload Area Drag & Drop
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const resultsSection = document.getElementById('resultsSection');
+        const uploadForm = document.getElementById('uploadForm');
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const loadingModal = document.getElementById('loadingModal');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const textOutput = document.getElementById('textOutput');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => imageInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageInput.files = files;
+                handleImageSelect();
+            }
+        });
+
+        // File input change
+        imageInput.addEventListener('change', handleImageSelect);
+
+        function handleImageSelect() {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    uploadArea.style.display = 'none';
+                    previewSection.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Change image button
+        changeImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            imageInput.value = '';
+            uploadArea.style.display = 'block';
+            previewSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+        });
+
+        // Logout
+        document.querySelector('.btn-logout').addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                window.location.href = '/logout';
+            }
+        });
+
+        // Form submit
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!imageInput.files[0]) {
+                alert('Por favor selecciona una imagen');
+                return;
+            }
+
+            loadingModal.style.display = 'flex';
+
+            // Simular procesamiento (reemplazar con llamada real a backend)
+            setTimeout(() => {
+                loadingModal.style.display = 'none';
+                textOutput.innerHTML = '<p>Texto extraído de la imagen procesada...</p><p>Este es el resultado del procesamiento de la imagen. Aquí aparecerá el texto detectado.</p>';
+                resultsSection.style.display = 'block';
+            }, 2000);
+        });
+
+        // Copy button
+        copyBtn.addEventListener('click', () => {
+            const text = textOutput.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Texto copiado al portapapeles');
+            });
+        });
+
+        // Download button
+        downloadBtn.addEventListener('click', () => {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(textOutput.innerText));
+            element.setAttribute('download', 'resultado.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        });
+    </script>
 </body>
 </html>

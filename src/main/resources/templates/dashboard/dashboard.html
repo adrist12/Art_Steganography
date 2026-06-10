@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Art Steganography</title>
-    <link rel="stylesheet" href="styles.css">
+
+    <title>Dashboard</title>
 </head>
 <body class="dashboard-page">
+    <th:block layout:fragment="content">
     <div class="dashboard-container">
         <!-- Header -->
         <header class="dashboard-header">
             <h1>Art Steganography</h1>
             <p>Sistema Inteligente de Conversión de Imágenes</p>
-            
+
             <div class="user-info">
                 <div class="user-greeting">
                     <span th:text="'Bienvenido, ' + ${userName}">Bienvenido, Usuario</span>
                 </div>
-                <a href="/logout" class="btn-logout-dashboard">Cerrar Sesión</a>
+                <form th:action="@{/auth/logout}" method="post">
+                    <button type="submit" class="btn_cerrar_sesion">
+                        Cerrar Sesión
+                    </button>
+                </form>
             </div>
         </header>
 
@@ -25,7 +30,7 @@
         <div class="dashboard-content">
             <div class="sections-grid">
                 <!-- Tarjeta Art -->
-                <div class="section-card" onclick="navigateTo('/Art')">
+                <div class="section-card">
                     <span class="section-icon">🎨</span>
                     <h3>Convertir Imagen a Texto</h3>
                     <p>Convierte imágenes en texto utilizando técnicas avanzadas de procesamiento y reconocimiento de caracteres.</p>
@@ -37,11 +42,11 @@
                         <li>Procesamiento de alta calidad</li>
                     </ul>
                     
-                    <a href="/Art" class="btn-access">Ir a Conversión</a>
+                    <a th:href="@{/modules/ascii}" class="btn-access">Ir a Conversión</a>
                 </div>
 
                 <!-- Tarjeta Steganography -->
-                <div class="section-card" onclick="navigateTo('/Steganography')">
+                <div class="section-card">
                     <span class="section-icon">🔐</span>
                     <h3>Esteganografía</h3>
                     <p>Oculta mensajes secretos dentro de imágenes. Perfecto para comunicaciones seguras y privadas.</p>
@@ -53,21 +58,12 @@
                         <li>Máxima privacidad</li>
                     </ul>
                     
-                    <a href="/Steganography" class="btn-access">Ir a Esteganografía</a>
+                    <a th:href="@{/modules/stego}" class="btn-access">Ir a Esteganografía</a>
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="dashboard-footer">
-            <p>&copy; 2026 Art Steganography. Sistema de Conversión e Integración Segura de Imágenes.</p>
-        </footer>
     </div>
+    </th:block>
 
-    <script>
-        function navigateTo(page) {
-            window.location.href = page;
-        }
-    </script>
 </body>
 </html>

@@ -1,3 +1,25 @@
-<nav th:fragment="navbar(username, isAuthenticated)">
-    <span th:text="${username}"></span>
+<!-- fragments/navbar.html                                        -->
+<!-- No usa layout:decorate — NO es una página completa          -->
+<!-- Es solo una pieza, como un componente                       -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar">
+    <ul>
+        <li><a th:href="@{/dashboard}">Inicio</a></li>
+        <li><a th:href="@{/modules/stego}">Esteganografía</a></li>
+        <li><a th:href="@{/modules/ascii}">ASCII Art</a></li>
+        <li>
+            <form th:action="@{/auth/logout}" method="post">
+                <button type="submit" class="btn_cerrar_sesion">
+                    Cerrar Sesión
+                </button>
+            </form>
+        </li>
+    </ul>
+
 </nav>
+
+</body>
+</html>

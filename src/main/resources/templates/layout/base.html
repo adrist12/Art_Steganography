@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--  El namespace xmlns:layout es como registrar el "dialecto" -->
+<!--    Sin esto, layout:decorate y layout:fragment no existen   -->
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net/thymeleaf/layout">
+<head>
+    <!--  El título tiene un mecanismo especial en Layout Dialect  -->
+    <!--    Patrón: "$DECORATOR_TITLE - $CONTENT_TITLE"             -->
+    <!--    Resultado: "Artsega - Dashboard" o "MiApp - Login"        -->
+    <title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">
+        Artsega
+    </title>
+
+    <!--  CSS global — carga en TODAS las páginas automáticamente -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+
+    <th:block layout:fragment="page_styles"></th:block>
+</head>
+<body>
+
+
+    <header th:replace="~{fragments/navbar :: navbar}"></header>
+
+
+    <main>
+        <th:block layout:fragment="content">
+            <!-- Las páginas hijas reemplazan este bloque entero   -->
+        </th:block>
+    </main>
+
+    <!--  Footer reutilizable, igual que el navbar               -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <!--  JS global — jQuery, Bootstrap JS, etc.                 -->
+    <script th:src="@{/js/main.js}"></script>
+
+    <th:block layout:fragment="page-scripts"></th:block>
+
+</body>
+</html>

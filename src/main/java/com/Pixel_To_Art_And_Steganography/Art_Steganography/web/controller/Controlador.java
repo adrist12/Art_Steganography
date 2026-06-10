@@ -1,4 +1,4 @@
-package com.Pixel_To_Art_And_Steganography.Art_Steganography.Controller;
+package com.Pixel_To_Art_And_Steganography.Art_Steganography.web.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

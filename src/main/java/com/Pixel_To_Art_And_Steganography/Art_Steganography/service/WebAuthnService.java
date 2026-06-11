@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Optional;
+
 
 @Service
 public class WebAuthnService {
@@ -106,7 +105,7 @@ public class WebAuthnService {
     // =========================================================================
     // MÉTODO 3: INICIAR LOGIN
     // =========================================================================
-    public PublicKeyCredentialRequestOptions startLogin(String email, HttpSession session) {
+    public AssertionRequest  startLogin(String email, HttpSession session) {
         // 1. Verificar si el usuario existe (opcional pero recomendado para UX)
         if (!userRepository.existsByEmail(email)) {
             // Por seguridad, a veces se prefiere no revelar si el usuario existe o no.
@@ -124,7 +123,7 @@ public class WebAuthnService {
         session.setAttribute("assertionRequest", assertionRequest);
 
         // Retornamos las opciones que el frontend necesita
-        return assertionRequest.getPublicKeyCredentialRequestOptions();
+        return assertionRequest;
     }
 
     // =========================================================================

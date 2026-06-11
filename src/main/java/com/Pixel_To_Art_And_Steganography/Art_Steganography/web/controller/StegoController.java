@@ -12,7 +12,7 @@ public class StegoController {
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
-        return "Steganography";
+        return "./modules/Steganography";
     }
 
     @PostMapping("/modules/stego")
@@ -20,7 +20,7 @@ public class StegoController {
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
-        return "Steganography";
+        return "./modules/Steganography";
     }
 
 }

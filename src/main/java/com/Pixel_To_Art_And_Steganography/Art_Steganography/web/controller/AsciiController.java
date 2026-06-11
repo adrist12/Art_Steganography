@@ -14,14 +14,14 @@ public class AsciiController {
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
-        return "Art";
+        return "./modules/Art";
     }
     @PostMapping("/modules/ascii")
     public String post_Art(Model model, HttpSession session) {
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
-        return "Art";
+        return "./modules/Art";
     }
 }
 

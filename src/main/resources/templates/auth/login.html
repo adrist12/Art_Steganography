@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrix Login - Art Steganography</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="matrix-login-page">
     <!-- Fondo animado Matrix -->
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Formulario de login -->
-            <form class="matrix-form" action="/login" method="POST">
+            <form class="matrix-form" action="/auth/login" method="POST">
                 <div class="matrix-input-group">
                     <label for="user" class="matrix-label">
                         <span class="bracket">[</span>USUARIO<span class="bracket">]</span>
@@ -45,7 +45,7 @@
                         <input 
                             type="email" 
                             id="user"
-                            name="user" 
+                            name="email"
                             class="matrix-input"
                             placeholder="admin@example.com"
                             required
@@ -64,7 +64,7 @@
                         <input 
                             type="password" 
                             id="pass"
-                            name="pass" 
+                            name="password"
                             class="matrix-input"
                             placeholder="••••••••••"
                             required

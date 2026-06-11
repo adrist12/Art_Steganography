@@ -12,11 +12,13 @@ public class DashboardController {
             return "redirect:/";
         }
         model.addAttribute("userName", session.getAttribute("userName"));
-        return "dashboard";
+        return "./dashboard/dashboard";
     }
     @GetMapping("/")
-    public String get_Index() {
-
+    public String get_Index(HttpSession session) {
+        if (session.getAttribute("userSession") != null) {
+            return "redirect:/dashboard";
+        }
         return "redirect:/auth/login";
 
     }

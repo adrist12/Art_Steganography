@@ -23,12 +23,13 @@ public class AuthController {
     //--------RUTAS GET--------------
     @GetMapping("/login")
     public String mostrarLogin() {
-        return "login"; // Busca login.html en templates
+
+        return "./auth/login";
     }
     @GetMapping("/register")
     public String mostrarRegistro(Model model) {
         model.addAttribute("registroForm", new RegisterForm()); // Importante para el form binding
-        return "registro";
+        return "./auth/registro";
     }
 
     //--------RUTAS POST--------------
@@ -39,7 +40,7 @@ public class AuthController {
             return "redirect:/auth/login?success";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            return "registro"; // Vuelve a mostrar el formulario con el error
+            return "./auth/registro"; // Vuelve a mostrar el formulario con el error
         }
     }
 

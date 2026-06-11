@@ -45,20 +45,21 @@
                     <a th:href="@{/modules/ascii}" class="btn-access">Ir a Conversión</a>
                 </div>
 
-                <!-- Tarjeta Steganography -->
+                <!-- Tarjeta Esteganografía & Criptografía -->
                 <div class="section-card">
-                    <span class="section-icon">🔐</span>
-                    <h3>Esteganografía</h3>
-                    <p>Oculta mensajes secretos dentro de imágenes. Perfecto para comunicaciones seguras y privadas.</p>
+                    <span class="section-icon">🔐🔒</span>
+                    <h3>Esteganografía & Criptografía</h3>
+                    <p>Oculta mensajes secretos en imágenes con cifrado AES-256-GCM y compresión GZIP. Comunicaciones seguras y privadas.</p>
                     
                     <ul class="features">
-                        <li>Ocultar datos en imágenes</li>
-                        <li>Recuperar mensajes ocultos</li>
-                        <li>Encriptación adicional</li>
+                        <li>Ocultar datos en imágenes (LSB)</li>
+                        <li>Cifrado AES-256-GCM</li>
+                        <li>Compresión GZIP</li>
+                        <li>Extracción reversible con contraseña</li>
                         <li>Máxima privacidad</li>
                     </ul>
                     
-                    <a th:href="@{/modules/stego}" class="btn-access">Ir a Esteganografía</a>
+                    <a th:href="@{/stego}" class="btn-access">Ir a Esteganografía & Criptografía</a>
                 </div>
             </div>
         </div>

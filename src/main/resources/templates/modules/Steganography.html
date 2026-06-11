@@ -1,10 +1,390 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 
-</body>
+<th:block layout:fragment="page_styles">
+    <link rel="stylesheet" th:href="@{/css/stego.css}">
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="stego-container">
+        <!-- Header -->
+        <header class="stego-header">
+            <div class="header-content">
+                <h1>Esteganografía & Criptografía</h1>
+                <p>Oculta mensajes secretos en imágenes con cifrado AES-256-GCM</p>
+            </div>
+            <div class="header-decoration">
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">1</span>
+                <span class="matrix-char">0</span>
+                <span class="matrix-char">1</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="stego-main">
+            <!-- Mensajes de éxito/error -->
+            <div th:if="${success}" class="alert alert-success">
+                <span class="alert-icon">✓</span>
+                <span th:text="${success}">Operación exitosa</span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <span class="alert-icon">✗</span>
+                <span th:text="${error}">Error en la operación</span>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="hide-tab">
+                        <span class="tab-icon">🔒</span>
+                        Ocultar Mensaje
+                    </button>
+                    <button class="tab-btn" data-tab="extract-tab">
+                        <span class="tab-icon">🔓</span>
+                        Extraer Mensaje
+                    </button>
+                </div>
+
+                <!-- Tab: Ocultar Mensaje -->
+                <div id="hide-tab" class="tab-content active">
+                    <div class="stego-section">
+                        <div class="section-header">
+                            <div class="section-icon">🖼️</div>
+                            <h2>Ocultar Mensaje en Imagen</h2>
+                        </div>
+                        <p class="section-description">
+                            Sube una imagen, escribe tu mensaje secreto y una contraseña.
+                            El sistema comprimirá, cifrará y ocultará el mensaje en la imagen.
+                        </p>
+
+                        <form class="stego-form" th:action="@{/stego/hide}" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="imageFile">Imagen (PNG recomendado):</label>
+                                <div class="file-upload-area" id="hideUploadArea">
+                                    <input type="file" id="imageFile" name="imageFile" accept="image/png,image/jpeg,image/bmp" required hidden>
+                                    <div class="file-upload-content">
+                                        <span class="upload-icon">📁</span>
+                                        <p>Arrastra tu imagen aquí o haz clic para seleccionar</p>
+                                        <span class="file-name" id="hideFileName"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Mensaje secreto:</label>
+                                <textarea 
+                                    id="message" 
+                                    name="message" 
+                                    class="stego-textarea" 
+                                    rows="5" 
+                                    placeholder="Escribe el mensaje que deseas ocultar..."
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="hidePassword">Contraseña de cifrado:</label>
+                                <div class="password-input-wrapper">
+                                    <input 
+                                        type="password" 
+                                        id="hidePassword" 
+                                        name="password" 
+                                        class="stego-input" 
+                                        placeholder="Ingresa una contraseña segura..."
+                                        required
+                                    >
+                                    <button type="button" class="toggle-password" data-target="hidePassword">
+                                        👁️
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-stego btn-hide">
+                                <span class="btn-icon">🔒</span>
+                                Ocultar y Descargar Imagen
+                            </button>
+                        </form>
+
+                        <!-- Resultado de ocultación -->
+                        <div th:if="${downloadFilename}" class="result-box result-hide">
+                            <div class="result-header">
+                                <span class="result-label">✓ Mensaje ocultado exitosamente</span>
+                            </div>
+                            <div class="result-content">
+                                <p>Tu imagen con el mensaje oculto está lista para descargar.</p>
+                                <a th:href="@{/stego/download(filename=${downloadFilename})}" class="btn-download-stego">
+                                    📥 Descargar Imagen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Extraer Mensaje -->
+                <div id="extract-tab" class="tab-content">
+                    <div class="stego-section">
+                        <div class="section-header">
+                            <div class="section-icon">🔍</div>
+                            <h2>Extraer Mensaje de Imagen</h2>
+                        </div>
+                        <p class="section-description">
+                            Sube una imagen que contenga un mensaje oculto e ingresa la contraseña.
+                            El sistema extraerá, descifrará y descomprimirá el mensaje original.
+                        </p>
+
+                        <form class="stego-form" th:action="@{/stego/extract}" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="extractImageFile">Imagen con mensaje oculto:</label>
+                                <div class="file-upload-area" id="extractUploadArea">
+                                    <input type="file" id="extractImageFile" name="imageFile" accept="image/png,image/jpeg,image/bmp" required hidden>
+                                    <div class="file-upload-content">
+                                        <span class="upload-icon">📁</span>
+                                        <p>Arrastra la imagen aquí o haz clic para seleccionar</p>
+                                        <span class="file-name" id="extractFileName"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="extractPassword">Contraseña de descifrado:</label>
+                                <div class="password-input-wrapper">
+                                    <input 
+                                        type="password" 
+                                        id="extractPassword" 
+                                        name="password" 
+                                        class="stego-input" 
+                                        placeholder="Ingresa la contraseña utilizada para cifrar..."
+                                        required
+                                    >
+                                    <button type="button" class="toggle-password" data-target="extractPassword">
+                                        👁️
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-stego btn-extract">
+                                <span class="btn-icon">🔓</span>
+                                Extraer Mensaje
+                            </button>
+                        </form>
+
+                        <!-- Resultado de extracción -->
+                        <div th:if="${extractedMessage}" class="result-box result-extract">
+                            <div class="result-header">
+                                <span class="result-label">✓ Mensaje extraído exitosamente</span>
+                                <button class="btn-copy-small" onclick="copyToClipboard('extractedOutput')">
+                                    📋 Copiar
+                                </button>
+                            </div>
+                            <div class="result-content">
+                                <textarea id="extractedOutput" class="result-textarea" rows="6" readonly th:text="${extractedMessage}"></textarea>
+                            </div>
+                            <div class="result-info">
+                                <small>Mensaje original recuperado: desencriptado y descomprimido</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flujo del proceso -->
+            <section class="flow-section">
+                <h3>Flujo Completo: Criptografía + Esteganografía</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="flow-icon">📝</div>
+                        <div class="flow-label">Texto Original</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📦</div>
+                        <div class="flow-label">Comprimir (GZIP)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔒</div>
+                        <div class="flow-label">Cifrar (AES-256)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🖼️</div>
+                        <div class="flow-label">Ocultar en Imagen (LSB)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📤</div>
+                        <div class="flow-label">Enviar/Recibir</div>
+                    </div>
+                </div>
+                <div class="flow-diagram reverse">
+                    <div class="flow-step">
+                        <div class="flow-icon">📥</div>
+                        <div class="flow-label">Recibir Imagen</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔍</div>
+                        <div class="flow-label">Extraer Datos (LSB)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔓</div>
+                        <div class="flow-label">Descifrar (AES-256)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📂</div>
+                        <div class="flow-label">Descomprimir (GZIP)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">✅</div>
+                        <div class="flow-label">Texto Original</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="stego-footer">
+            <p>&copy; 2024 Art Steganography - Esteganografía & Criptografía</p>
+        </footer>
+    </div>
+
+    <th:block layout:fragment="page-scripts">
+        <script>
+            // Tabs functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // Toggle password visibility
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.textContent = '🙈';
+                    } else {
+                        input.type = 'password';
+                        this.textContent = '👁️';
+                    }
+                });
+            });
+
+            // Copy to clipboard
+            function copyToClipboard(elementId) {
+                const textarea = document.getElementById(elementId);
+                if (textarea) {
+                    textarea.select();
+                    document.execCommand('copy');
+                    alert('Texto copiado al portapapeles');
+                }
+            }
+
+            // File upload display
+            function setupFileUpload(inputId, displayId, areaId) {
+                const input = document.getElementById(inputId);
+                const display = document.getElementById(displayId);
+                const area = document.getElementById(areaId);
+
+                if (input && area) {
+                    area.addEventListener('click', () => input.click());
+
+                    input.addEventListener('change', function() {
+                        if (this.files && this.files[0]) {
+                            display.textContent = this.files[0].name;
+                            area.classList.add('has-file');
+                        }
+                    });
+
+                    area.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        area.classList.add('dragover');
+                    });
+
+                    area.addEventListener('dragleave', () => {
+                        area.classList.remove('dragover');
+                    });
+
+                    area.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        area.classList.remove('dragover');
+                        if (e.dataTransfer.files.length > 0) {
+                            input.files = e.dataTransfer.files;
+                            display.textContent = e.dataTransfer.files[0].name;
+                            area.classList.add('has-file');
+                        }
+                    });
+                }
+            }
+
+            setupFileUpload('imageFile', 'hideFileName', 'hideUploadArea');
+            setupFileUpload('extractImageFile', 'extractFileName', 'extractUploadArea');
+
+            // Auto-resize textareas
+            document.querySelectorAll('.stego-textarea, .result-textarea').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                });
+            });
+
+            // Flow steps animation
+            const observerOptions = { threshold: 0.2, rootMargin: '0px 0px -50px 0px' };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.flow-step').forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(20px)';
+                step.style.transition = 'all 0.5s ease ' + (index * 0.1) + 's';
+                observer.observe(step);
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.flow-step').forEach(step => {
+                    step.style.opacity = '1';
+                    step.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        </script>
+    </th:block>
 </html>

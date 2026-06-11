@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<th:block layout:fragment="page_styles">
+    <link rel="stylesheet" th:href="@{/css/crypto.css}">
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="crypto-container">
+        <header class="crypto-header">
+            <div class="header-content">
+                <h1>Módulo de Criptografía</h1>
+                <p>Cifrado, compresión y extracción de datos</p>
+            </div>
+        </header>
+
+        <main class="crypto-main">
+            <div th:if="${success}" class="alert alert-success">
+                <span class="alert-icon">✓</span>
+                <span th:text="${success}">Operación exitosa</span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <span class="alert-icon">✗</span>
+                <span th:text="${error}">Error en la operación</span>
+            </div>
+
+            <section class="crypto-section">
+                <div class="section-header">
+                    <div class="section-icon">🔒</div>
+                    <h2>Cifrado Simétrico (AES-GCM)</h2>
+                </div>
+                <p class="section-description">
+                    Cifra tu texto usando AES-256 con compresión GZIP previa.
+                </p>
+
+                <form class="crypto-form" th:action="@{/crypto/encrypt}" method="post">
+                    <div class="form-group">
+                        <label for="plaintext">Texto a cifrar:</label>
+                        <textarea id="plaintext" name="plaintext" class="crypto-textarea" rows="5"
+                                  placeholder="Ingresa el texto que deseas cifrar..."
+                                  th:value="${originalText}">Mensaje secreto para esteganografía</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="encryptPassword">Contraseña de cifrado:</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="encryptPassword" name="password" class="crypto-input"
+                                   placeholder="Ingresa una contraseña segura..." required>
+                            <button type="button" class="toggle-password" data-target="encryptPassword">👁️</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-crypto btn-encrypt">
+                        <span class="btn-icon">🔒</span> Cifrar Texto
+                    </button>
+                </form>
+
+                <div th:if="${encryptedResult}" class="result-box result-encrypted">
+                    <div class="result-header">
+                        <span class="result-label">Texto Cifrado (Base64):</span>
+                        <button class="btn-copy-small" onclick="copyToClipboard('encryptedOutput')">📋 Copiar</button>
+                    </div>
+                    <div class="result-content">
+                        <textarea id="encryptedOutput" class="result-textarea" rows="4" readonly
+                                  th:text="${encryptedResult}"></textarea>
+                    </div>
+                    <div class="result-info">
+                        <small>Datos comprimidos + cifrados con AES-256-GCM</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="crypto-section">
+                <div class="section-header">
+                    <div class="section-icon">🔓</div>
+                    <h2>Descifrado (Extracción)</h2>
+                </div>
+                <p class="section-description">
+                    Descifra el texto oculto en la imagen.
+                </p>
+
+                <form class="crypto-form" th:action="@{/crypto/decrypt}" method="post">
+                    <div class="form-group">
+                        <label for="encryptedInput">Texto cifrado (Base64):</label>
+                        <textarea id="encryptedInput" name="encryptedText" class="crypto-textarea" rows="5"
+                                  placeholder="Pega aquí el texto cifrado extraído de la imagen..."
+                                  th:value="${encryptedInput}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decryptPassword">Contraseña de descifrado:</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="decryptPassword" name="password" class="crypto-input"
+                                   placeholder="Ingresa la contraseña utilizada para cifrar..." required>
+                            <button type="button" class="toggle-password" data-target="decryptPassword">👁️</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-crypto btn-decrypt">
+                        <span class="btn-icon">🔓</span> Descifrar Texto
+                    </button>
+                </form>
+
+                <div th:if="${decryptedResult}" class="result-box result-decrypted">
+                    <div class="result-header">
+                        <span class="result-label">Texto Descifrado:</span>
+                        <button class="btn-copy-small" onclick="copyToClipboard('decryptedOutput')">📋 Copiar</button>
+                    </div>
+                    <div class="result-content">
+                        <textarea id="decryptedOutput" class="result-textarea" rows="5" readonly
+                                  th:text="${decryptedResult}"></textarea>
+                    </div>
+                    <div class="result-info">
+                        <small>Texto original recuperado exitosamente</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="crypto-section">
+                <div class="section-header">
+                    <div class="section-icon">📦</div>
+                    <h2>Compresión de Datos (GZIP)</h2>
+                </div>
+                <p class="section-description">
+                    Comprime datos para reducir su tamaño antes de ocultarlos en la imagen.
+                </p>
+
+                <form class="crypto-form" th:action="@{/crypto/compress}" method="post">
+                    <div class="form-group">
+                        <label for="textToCompress">Datos a comprimir:</label>
+                        <textarea id="textToCompress" name="textToCompress" class="crypto-textarea" rows="5"
+                                  placeholder="Ingresa el texto que deseas comprimir..."
+                                  th:value="${originalText}">Este es un texto de ejemplo para comprimir antes de ocultarlo en una imagen usando esteganografía.</textarea>
+                    </div>
+
+                    <button type="submit" class="btn-crypto btn-compress">
+                        <span class="btn-icon">📦</span> Comprimir Datos
+                    </button>
+                </form>
+
+                <div th:if="${compressedResult}" class="result-box result-compressed">
+                    <div class="result-header">
+                        <span class="result-label">Datos Comprimidos (Base64):</span>
+                        <button class="btn-copy-small" onclick="copyToClipboard('compressedOutput')">📋 Copiar</button>
+                    </div>
+                    <div class="result-content">
+                        <textarea id="compressedOutput" class="result-textarea" rows="4" readonly
+                                  th:text="${compressedResult}"></textarea>
+                    </div>
+                    <div class="result-info">
+                        <small>Datos comprimidos con GZIP y codificados en Base64</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="crypto-section">
+                <div class="section-header">
+                    <div class="section-icon">📂</div>
+                    <h2>Descompresión de Datos</h2>
+                </div>
+                <p class="section-description">
+                    Descomprime datos extraídos de una imagen esteganográfica.
+                </p>
+
+                <form class="crypto-form" th:action="@{/crypto/decompress}" method="post">
+                    <div class="form-group">
+                        <label for="compressedInput">Datos comprimidos (Base64):</label>
+                        <textarea id="compressedInput" name="compressedText" class="crypto-textarea" rows="5"
+                                  placeholder="Pega aquí los datos comprimidos extraídos de la imagen..."
+                                  th:value="${compressedInput}"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-crypto btn-decompress">
+                        <span class="btn-icon">📂</span> Descomprimir Datos
+                    </button>
+                </form>
+
+                <div th:if="${decompressedResult}" class="result-box result-decompressed">
+                    <div class="result-header">
+                        <span class="result-label">Datos Descomprimidos:</span>
+                        <button class="btn-copy-small" onclick="copyToClipboard('decompressedOutput')">📋 Copiar</button>
+                    </div>
+                    <div class="result-content">
+                        <textarea id="decompressedOutput" class="result-textarea" rows="5" readonly
+                                  th:text="${decompressedResult}"></textarea>
+                    </div>
+                    <div class="result-info">
+                        <small>Datos originales recuperados exitosamente</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="flow-section">
+                <h3>Flujo de Integración con Esteganografía</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="flow-icon">📝</div>
+                        <div class="flow-label">Texto Original</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📦</div>
+                        <div class="flow-label">Comprimir (GZIP)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔒</div>
+                        <div class="flow-label">Cifrar (AES-256)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🖼️</div>
+                        <div class="flow-label">Ocultar en Imagen</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📤</div>
+                        <div class="flow-label">Enviar/Recibir</div>
+                    </div>
+                </div>
+                <div class="flow-diagram reverse">
+                    <div class="flow-step">
+                        <div class="flow-icon">📥</div>
+                        <div class="flow-label">Recibir Imagen</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔍</div>
+                        <div class="flow-label">Extraer Datos</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">🔓</div>
+                        <div class="flow-label">Descifrar (AES-256)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">📂</div>
+                        <div class="flow-label">Descomprimir (GZIP)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-icon">✅</div>
+                        <div class="flow-label">Texto Original</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="crypto-footer">
+            <p>&copy; 2024 Art Steganography - Módulo de Criptografía</p>
+        </footer>
+    </div>
+
+    <th:block layout:fragment="page-scripts">
+        <script>
+            // Toggle password visibility
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.textContent = '🙈';
+                    } else {
+                        input.type = 'password';
+                        this.textContent = '👁️';
+                    }
+                });
+            });
+
+            function copyToClipboard(elementId) {
+                const textarea = document.getElementById(elementId);
+                if (textarea) {
+                    textarea.select();
+                    document.execCommand('copy');
+                    alert('Texto copiado al portapapeles');
+                }
+            }
+
+            document.querySelectorAll('.crypto-textarea, .result-textarea').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                });
+            });
+
+            const observerOptions = { threshold: 0.2, rootMargin: '0px 0px -50px 0px' };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.flow-step').forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(20px)';
+                step.style.transition = 'all 0.5s ease ' + (index * 0.1) + 's';
+                observer.observe(step);
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.flow-step').forEach(step => {
+                    step.style.opacity = '1';
+                    step.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        </script>
+    </th:block>
+</html>

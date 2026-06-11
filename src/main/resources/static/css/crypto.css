@@ -1,0 +1,624 @@
+/* ==================== MÓDULO DE CRIPTOGRAFÍA - TEMA MATRIX ==================== */
+
+/* Variables específicas del módulo */
+.crypto-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0a0f1a;
+    color: #e0e0e0;
+    font-family: 'Courier New', 'Consolas', monospace;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Fondo Matrix animado */
+.crypto-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at center, rgba(0, 255, 65, 0.03) 0%, transparent 70%),
+        linear-gradient(180deg, #0a0f1a 0%, #0d1525 50%, #0a0f1a 100%);
+    z-index: -2;
+}
+
+.crypto-container::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -1;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+}
+
+/* Header */
+.crypto-header {
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 200, 50, 0.05) 100%);
+    border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+    padding: 30px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.crypto-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+    animation: headerScan 4s ease-in-out infinite;
+}
+
+@keyframes headerScan {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.header-content h1 {
+    font-size: 32px;
+    color: #00ff41;
+    text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.header-content p {
+    font-size: 14px;
+    color: rgba(0, 255, 65, 0.7);
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+}
+
+.header-decoration {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 3px;
+    opacity: 0.3;
+}
+
+.matrix-char {
+    color: #00ff41;
+    font-size: 14px;
+    animation: matrixFall 2s ease-in-out infinite;
+}
+
+@keyframes matrixFall {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-5px); }
+}
+
+/* Main Content */
+.crypto-main {
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Alertas */
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    animation: slideDown 0.3s ease;
+    border: 1px solid;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.alert-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Secciones */
+.crypto-section {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.crypto-section:hover {
+    border-color: rgba(0, 255, 65, 0.4);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.section-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5));
+}
+
+.section-header h2 {
+    font-size: 22px;
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    letter-spacing: 2px;
+}
+
+.section-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.section-description strong {
+    color: #00ff41;
+}
+
+/* Formularios */
+.crypto-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: rgba(0, 255, 65, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.crypto-textarea,
+.crypto-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #e0e0e0;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+.crypto-textarea:focus,
+.crypto-input:focus {
+    outline: none;
+    border-color: #00ff41;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 10px rgba(0, 255, 65, 0.05);
+}
+
+.crypto-textarea::placeholder,
+.crypto-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .crypto-input {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    padding: 5px;
+}
+
+.toggle-password:hover {
+    opacity: 1;
+}
+
+/* Botones */
+.btn-crypto {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Courier New', 'Consolas', monospace;
+    text-transform: uppercase;
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+.btn-encrypt {
+    background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+    color: #0a0f1a;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+}
+
+.btn-encrypt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 255, 65, 0.4);
+}
+
+.btn-decrypt {
+    background: linear-gradient(135deg, #00bfff 0%, #0099cc 100%);
+    color: #0a0f1a;
+    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+}
+
+.btn-decrypt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 191, 255, 0.4);
+}
+
+.btn-compress {
+    background: linear-gradient(135deg, #ff6b35 0%, #cc5529 100%);
+    color: #0a0f1a;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.btn-compress:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 107, 53, 0.4);
+}
+
+.btn-decompress {
+    background: linear-gradient(135deg, #a855f7 0%, #8b44cc 100%);
+    color: #0a0f1a;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.btn-decompress:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+}
+
+.btn-crypto:active {
+    transform: translateY(0);
+}
+
+/* Resultados */
+.result-box {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-encrypted {
+    background: rgba(0, 255, 65, 0.05);
+    border-color: rgba(0, 255, 65, 0.3);
+}
+
+.result-decrypted {
+    background: rgba(0, 191, 255, 0.05);
+    border-color: rgba(0, 191, 255, 0.3);
+}
+
+.result-compressed {
+    background: rgba(255, 107, 53, 0.05);
+    border-color: rgba(255, 107, 53, 0.3);
+}
+
+.result-decompressed {
+    background: rgba(168, 85, 247, 0.05);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.result-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.result-encrypted .result-label { color: #00ff41; }
+.result-decrypted .result-label { color: #00bfff; }
+.result-compressed .result-label { color: #ff6b35; }
+.result-decompressed .result-label { color: #a855f7; }
+
+.btn-copy-small {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copy-small:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.result-content {
+    margin-bottom: 10px;
+}
+
+.result-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 12px;
+    color: #e0e0e0;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 12px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.result-textarea:focus {
+    outline: none;
+    border-color: rgba(0, 255, 65, 0.3);
+}
+
+.result-info {
+    text-align: right;
+}
+
+.result-info small {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+}
+
+/* Sección de flujo */
+.flow-section {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.flow-section h3 {
+    font-size: 18px;
+    color: #00ff41;
+    text-align: center;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.flow-diagram.reverse {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+.flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 20px;
+    background: rgba(0, 255, 65, 0.05);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    border-radius: 8px;
+    min-width: 100px;
+    transition: all 0.3s ease;
+}
+
+.flow-step:hover {
+    background: rgba(0, 255, 65, 0.1);
+    border-color: rgba(0, 255, 65, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0, 255, 65, 0.2);
+}
+
+.flow-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.5));
+}
+
+.flow-label {
+    font-size: 11px;
+    color: rgba(0, 255, 65, 0.8);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.flow-arrow {
+    font-size: 20px;
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    animation: arrowPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Footer */
+.crypto-footer {
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(0, 255, 65, 0.2);
+    padding: 20px;
+    text-align: center;
+    color: rgba(0, 255, 65, 0.5);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .crypto-header {
+        padding: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 24px;
+        letter-spacing: 2px;
+    }
+
+    .header-decoration {
+        display: none;
+    }
+
+    .crypto-main {
+        padding: 20px 15px;
+    }
+
+    .crypto-section {
+        padding: 20px 15px;
+    }
+
+    .section-header h2 {
+        font-size: 18px;
+    }
+
+    .flow-diagram {
+        gap: 5px;
+    }
+
+    .flow-step {
+        padding: 10px 12px;
+        min-width: 70px;
+    }
+
+    .flow-icon {
+        font-size: 20px;
+    }
+
+    .flow-label {
+        font-size: 9px;
+    }
+
+    .flow-arrow {
+        font-size: 16px;
+    }
+
+    .btn-crypto {
+        padding: 12px 20px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .crypto-header {
+        padding: 15px;
+    }
+
+    .header-content h1 {
+        font-size: 20px;
+    }
+
+    .crypto-main {
+        padding: 15px 10px;
+    }
+
+    .crypto-section {
+        padding: 15px 10px;
+        margin-bottom: 20px;
+    }
+
+    .flow-diagram {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .flow-arrow {
+        text-align: center;
+        transform: rotate(90deg);
+    }
+
+    .flow-step {
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+    }
+}

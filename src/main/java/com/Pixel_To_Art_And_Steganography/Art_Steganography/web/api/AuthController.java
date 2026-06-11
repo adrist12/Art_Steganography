@@ -14,7 +14,7 @@ public class AuthController {
     public String registerOptions() {
 
     }
-    @PostMapping("/register/finish ")
+    @PostMapping("/register/finish")
     public String registerFinish() {
 
     }
@@ -27,4 +27,5 @@ public class AuthController {
     public String loginFinish(){
 
     }
+
 }

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+
+<th:block layout:fragment="page_styles">
+    <link rel="stylesheet" th:href="@{/css/art.css}">
+    <style>
+        /* Estilos críticos específicos para el renderizado del Arte ASCII */
+        .ascii-matrix-output {
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 8px !important;
+            line-height: 0.9 !important;
+            letter-spacing: 0px !important;
+            white-space: pre !important;
+            background-color: #080c14 !important;
+            color: #00ff41 !important;
+            text-shadow: 0 0 3px #00ff41;
+            overflow-x: auto;
+            padding: 20px;
+            border-radius: 4px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        .upload-area.dragover {
+            border-color: #00ffff !important;
+            box-shadow: 0 0 15px #00ffff !important;
+        }
+    </style>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="matrix-bg-art">
+        <canvas id="matrixCanvasArt"></canvas>
+    </div>
+
+    <div class="art-container">
+        <header class="art-header">
+            <div class="header-content">
+                <h1>Renderizador de Arte ASCII</h1>
+                <p>Modula matrices de píxeles y conviértelas en flujos de caracteres binarios y de terminal</p>
+            </div>
+        </header>
+
+        <main class="art-main">
+            <section class="upload-section">
+                <h2>Procesador de Brillo</h2>
+                <p class="section-description">Carga un mapa de bits para mapear su espectro lumínico YUV y reconstruirlo usando código de caracteres monoespaciados.</p>
+
+                <form class="upload-form" id="asciiRenderForm">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon" style="color: #00ff41;">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Arrastra tu imagen gráfica aquí</h3>
+                        <p>o haz clic para explorar el almacenamiento</p>
+                        <input type="file" id="imageInput" accept="image/*" hidden required>
+                    </div>
+
+                    <div class="preview-section" id="previewSection" style="display: none;">
+                        <h3>VISTA PREVIA DE ORIGEN</h3>
+                        <img id="previewImage" class="preview-image" alt="Vista previa" style="max-height: 200px; object-fit: contain;">
+                        <button type="button" class="btn-change-image" id="changeImageBtn" style="border-color: #ff0055; color: #ff0055;">Cambiar Archivo</button>
+                    </div>
+
+                    <button type="submit" class="btn-convert" style="background: linear-gradient(45deg, #00ff41, #00ffff); color: #0f172a; font-weight: bold;">
+                        <span class="btn-icon">⚡</span>
+                        RENDERIZAR MATRIZ ASCII
+                    </button>
+                </form>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>💾 MATRIZ CONVERTIDA</h2>
+                <div class="results-content">
+                    <div class="terminal-output" style="border-color: #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.1);">
+                        <div class="terminal-header" style="background-color: #0c1020;">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-text" style="color: #00ffff; font-size: 11px; margin-left: 10px;">ascii_matrix_stream.txt</span>
+                        </div>
+                        <div class="terminal-body" style="background-color: #080c14; padding: 0;">
+                            <pre id="asciiTextOutput" class="ascii-matrix-output">Esperando flujo de datos...</pre>
+                        </div>
+                        <div class="terminal-actions" style="background-color: #0c1020;">
+                            <button class="btn-copy" id="copyBtn">📋 Copiar Arte</button>
+                            <button class="btn-download" id="downloadBtn" style="background-color: #00ffff; color: #0f172a;">📥 Descargar .TXT</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="loading-modal" id="loadingModal" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner" style="border-left-color: #00ffff;"></div>
+            <p style="color: #00ffff;">Mapeando canales de luminancia RGB...</p>
+        </div>
+    </div>
+
+    <th:block layout:fragment="page-scripts">
+        <script>
+            const uploadArea = document.getElementById('uploadArea');
+            const imageInput = document.getElementById('imageInput');
+            const previewSection = document.getElementById('previewSection');
+            const previewImage = document.getElementById('previewImage');
+            const resultsSection = document.getElementById('resultsSection');
+            const asciiRenderForm = document.getElementById('asciiRenderForm');
+            const changeImageBtn = document.getElementById('changeImageBtn');
+            const loadingModal = document.getElementById('loadingModal');
+            const copyBtn = document.getElementById('copyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const asciiTextOutput = document.getElementById('asciiTextOutput');
+
+            // Controladores de selección de archivos
+            uploadArea.addEventListener('click', () => imageInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    imageInput.files = e.dataTransfer.files;
+                    handleImageSelect();
+                }
+            });
+
+            imageInput.addEventListener('change', handleImageSelect);
+
+            function handleImageSelect() {
+                const file = imageInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImage.src = e.target.result;
+                        uploadArea.style.display = 'none';
+                        previewSection.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            changeImageBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                imageInput.value = '';
+                uploadArea.style.display = 'block';
+                previewSection.style.display = 'none';
+                resultsSection.style.display = 'none';
+            });
+
+            // Envío asíncrono al nuevo endpoint /modules/ascii/art
+            asciiRenderForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (!imageInput.files[0]) {
+                    alert('Por favor, monte un archivo de imagen en el canal de entrada.');
+                    return;
+                }
+
+                loadingModal.style.display = 'flex';
+
+                const formData = new FormData();
+                formData.append('file', imageInput.files[0]);
+
+                try {
+                    const response = await fetch('/modules/ascii/art', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorMsg = await response.text();
+                        throw new Error(errorMsg || 'Fallo en la matriz de respuesta.');
+                    }
+
+                    const asciiMatrixText = await response.text();
+
+                    // Inyectamos el texto preformateado crudo
+                    asciiTextOutput.textContent = asciiMatrixText;
+                    resultsSection.style.display = 'block';
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Fallo de segmentación: ' + error.message);
+                } finally {
+                    loadingModal.style.display = 'none';
+                }
+            });
+
+            // Copiar al portapapeles
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(asciiTextOutput.textContent).then(() => {
+                    alert('Matriz de caracteres copiada al portapapeles de la terminal.');
+                });
+            });
+
+            // Descargar archivo .TXT
+            downloadBtn.addEventListener('click', () => {
+                const content = asciiTextOutput.textContent;
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+                element.setAttribute('download', 'matrix_art_render.txt');
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            });
+
+            // Efecto de lluvia digital Matrix de fondo
+            const canvasArt = document.getElementById('matrixCanvasArt');
+            if (canvasArt) {
+                const ctxArt = canvasArt.getContext('2d');
+                canvasArt.width = window.innerWidth;
+                canvasArt.height = window.innerHeight;
+
+                const chars = '01XØ𝚵⚡𝝱Ψ';
+                const fontSize = 14;
+                const columns = canvasArt.width / fontSize;
+                const drops = [];
+
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.random() * canvasArt.height;
+                }
+
+                function drawMatrixArt() {
+                    ctxArt.fillStyle = 'rgba(10, 15, 26, 0.05)';
+                    ctxArt.fillRect(0, 0, canvasArt.width, canvasArt.height);
+                    ctxArt.fillStyle = 'rgba(0, 255, 255, 0.12)'; // Tono cian cibernético para diferenciar este módulo
+                    ctxArt.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const char = chars.charAt(Math.floor(Math.random() * chars.length));
+                        ctxArt.fillText(char, i * fontSize, drops[i]);
+
+                        if (drops[i] * fontSize > canvasArt.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrixArt, 50);
+                window.addEventListener('resize', () => {
+                    canvasArt.width = window.innerWidth;
+                    canvasArt.height = window.innerHeight;
+                });
+            }
+        </script>
+    </th:block>
+</th:block>
+</html>

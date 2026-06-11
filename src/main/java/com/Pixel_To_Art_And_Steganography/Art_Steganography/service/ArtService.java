@@ -5,6 +5,9 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -114,5 +117,66 @@ public class ArtService {
         }
 
         return sb.toString().trim();
+    }
+    public String convertirImagenAAscii(MultipartFile archivoImagen) {
+        if (archivoImagen == null || archivoImagen.isEmpty()) {
+            throw new IllegalArgumentException("La imagen no puede estar vacía");
+        }
+
+        // Caracteres ordenados de mayor a menor densidad (oscuridad a claridad)
+        final String CARACTERES_ASCII = "@#W$9876543210?!abc;:+=-,._ ";
+        StringBuilder resultadoAscii = new StringBuilder();
+
+        try {
+            // Convertir los bytes del MultipartFile en una imagen de Java
+            BufferedImage imgOriginal = ImageIO.read(new ByteArrayInputStream(archivoImagen.getBytes()));
+            if (imgOriginal == null) {
+                throw new IllegalArgumentException("El archivo enviado no es una imagen válida");
+            }
+
+            // 1. Redimensionar la imagen para que quepa en la pantalla/consola sin desbordarse
+            // Usamos un ancho estándar de 100 caracteres.
+            int nuevoAncho = 100;
+            // Los caracteres de texto son más altos que anchos, así que escalamos el alto al 45%
+            // para que la imagen final no se vea estirada verticalmente.
+            int nuevoAlto = (int) (imgOriginal.getHeight() * (nuevoAncho / (double) imgOriginal.getWidth()) * 0.45);
+
+            if (nuevoAlto < 1) nuevoAlto = 1;
+
+            // Crear una nueva imagen con el tamaño de la matriz ASCII
+            java.awt.Image imagenEscalada = imgOriginal.getScaledInstance(nuevoAncho, nuevoAlto, java.awt.Image.SCALE_SMOOTH);
+            BufferedImage imgRedimensionada = new BufferedImage(nuevoAncho, nuevoAlto, BufferedImage.TYPE_INT_RGB);
+
+            java.awt.Graphics2D g2d = imgRedimensionada.createGraphics();
+            g2d.drawImage(imagenEscalada, 0, 0, null);
+            g2d.dispose();
+
+            // 2. Recorrer la matriz de píxeles fila por fila
+            for (int y = 0; y < nuevoAlto; y++) {
+                for (int x = 0; x < nuevoAncho; x++) {
+                    // Obtener el color del píxel actual
+                    int rgb = imgRedimensionada.getRGB(x, y);
+                    int r = (rgb >> 16) & 0xFF;
+                    int g = (rgb >> 8) & 0xFF;
+                    int b = rgb & 0xFF;
+
+                    // Calcular la luminancia usando la fórmula estándar de escala de grises (YUV/NTSC)
+                    double luminosidad = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                    // Mapear la luminosidad (0-255) al índice de nuestro string de caracteres
+                    int indiceCaratere = (int) (luminosidad * (CARACTERES_ASCII.length() - 1) / 255.0);
+
+                    // Añadir el caracter correspondiente
+                    resultadoAscii.append(CARACTERES_ASCII.charAt(indiceCaratere));
+                }
+                // Fin de la fila, salto de línea para construir la matriz
+                resultadoAscii.append("\n");
+            }
+
+            return resultadoAscii.toString();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al leer los bytes de la imagen para ASCII: " + e.getMessage(), e);
+        }
     }
 }

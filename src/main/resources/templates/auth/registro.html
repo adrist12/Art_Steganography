@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Login - Art Steganography</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="matrix-login-page">
+<!-- Fondo animado Matrix -->
+<div class="matrix-bg">
+    <canvas id="matrixCanvas"></canvas>
+</div>
+
+<!-- Contenedor del login -->
+<div class="matrix-container">
+    <div class="matrix-login-box">
+        <!-- Efecto de escaneo -->
+        <div class="scan-line"></div>
+
+        <div class="matrix-header">
+            <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+            </div>
+            <h1 class="glitch" data-text="ART STEGANOGRAPHY">ART STEGANOGRAPHY</h1>
+            <p class="terminal-text">ACCESO AL SISTEMA RESTRINGIDO</p>
+        </div>
+
+        <!-- Mensaje de error si existe -->
+        <div th:if="${error}" class="matrix-error" id="errorAlert">
+            <span class="error-icon">⚠</span>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Formulario de login -->
+        <form class="matrix-form" action="/auth/register" method="POST">
+            <div class="matrix-input-group">
+                <label for="nombre" class="matrix-label">
+                    <span class="bracket">[</span>USUARIO<span class="bracket">]</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input
+                            type="email"
+                            id="nombre"
+                            name="email"
+                            class="matrix-input"
+                            placeholder="Tu usuario"
+                            required
+                            autocomplete="off"
+                    >
+                    <span class="input-cursor"></span>
+                </div>
+            </div>
+            <div class="matrix-input-group">
+                <label for="user" class="matrix-label">
+                    <span class="bracket">[</span>USUARIO<span class="bracket">]</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input
+                            type="email"
+                            id="user"
+                            name="email"
+                            class="matrix-input"
+                            placeholder="user@example.com"
+                            required
+                            autocomplete="off"
+                    >
+                    <span class="input-cursor"></span>
+                </div>
+            </div>
+
+            <div class="matrix-input-group">
+                <label for="pass" class="matrix-label">
+                    <span class="bracket">[</span>CONTRASEÑA<span class="bracket">]</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input
+                            type="password"
+                            id="pass"
+                            name="contrasena"
+                            class="matrix-input"
+                            placeholder="••••••••••"
+                            required
+                            autocomplete="off"
+                    >
+                    <span class="input-cursor"></span>
+                </div>
+            </div>
+            <div class="matrix-input-group">
+                <label for="pass" class="matrix-label">
+                    <span class="bracket">[</span>CONTRASEÑA<span class="bracket">]</span>
+                </label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input
+                            type="password"
+                            id="repet_pass"
+                            name="confirmarContrasena"
+                            class="matrix-input"
+                            placeholder="••••••••••"
+                            required
+                            autocomplete="off"
+                    >
+                    <span class="input-cursor"></span>
+                </div>
+            </div>
+
+
+
+            <button type="submit" class="matrix-btn">
+                <span class="btn-text">REGISTRARSE EN EL SISTEMA</span>
+                <span class="btn-glow"></span>
+            </button>
+        </form>
+
+        <!-- Footer de terminal -->
+        <div class="matrix-footer">
+            <p class="terminal-text-small">CREDENCIALES DE PRUEBA:</p>
+            <p class="terminal-text-small">user: admin@example.com | pass: admin123</p>
+        </div>
+
+        <!-- Efecto de líneas -->
+        <div class="matrix-lines">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Canvas Matrix Effect
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * canvas.height;
+    }
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(char, i * fontSize, drops[i]);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+
+        requestAnimationFrame(drawMatrix);
+    }
+
+    drawMatrix();
+
+    // Redimensionar canvas
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+    // Animar cursores de entrada
+    const inputs = document.querySelectorAll('.matrix-input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('active');
+        });
+
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.parentElement.classList.remove('active');
+            }
+        });
+    });
+
+    // Efecto glitch en el título
+    const glitchElement = document.querySelector('.glitch');
+    setInterval(() => {
+        glitchElement.style.animation = 'none';
+        setTimeout(() => {
+            glitchElement.style.animation = 'glitch 0.3s';
+        }, 10);
+    }, 4000);
+
+    // Ocultar mensaje de error después de 5 segundos
+    const errorAlert = document.getElementById('errorAlert');
+    if (errorAlert) {
+        setTimeout(() => {
+            errorAlert.style.animation = 'fadeOut 0.5s ease forwards';
+        }, 5000);
+    }
+</script>
+</body>
+</html>

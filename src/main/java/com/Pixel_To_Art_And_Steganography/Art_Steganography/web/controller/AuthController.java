@@ -1,56 +1,72 @@
 package com.Pixel_To_Art_And_Steganography.Art_Steganography.web.controller;
+
+import com.Pixel_To_Art_And_Steganography.Art_Steganography.domain.User;
+import com.Pixel_To_Art_And_Steganography.Art_Steganography.dto.RegisterForm;
+import com.Pixel_To_Art_And_Steganography.Art_Steganography.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
+@Controller
+@RequestMapping("/auth")
 public class AuthController {
-    private static final String[][] VALID_USERS = {
-            {"admin@example.com", "admin123", "Administrador"},
-            {"usuario@example.com", "usuario123", "Usuario"},
-            {"test@example.com", "test123", "Test"}
-    };
-    @GetMapping("/")
-    public String get_Index(Model model, HttpSession session) {
-        return "index";
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
+
+    //--------RUTAS GET--------------
+    @GetMapping("/login")
+    public String mostrarLogin() {
+        return "login"; // Busca login.html en templates
+    }
+    @GetMapping("/register")
+    public String mostrarRegistro(Model model) {
+        model.addAttribute("registroForm", new RegisterForm()); // Importante para el form binding
+        return "registro";
+    }
+
+    //--------RUTAS POST--------------
+    @PostMapping("/register")
+    public String procesarRegistro(@Valid @ModelAttribute RegisterForm form, Model model) {
+        try {
+            authService.registerUser(form); // Pasas el DTO al servicio
+            return "redirect:/auth/login?success";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "registro"; // Vuelve a mostrar el formulario con el error
+        }
+    }
+
     @PostMapping("/login")
     public String post_Login(
-            @RequestParam String user,
-            @RequestParam String pass,
+            @RequestParam String email,
+            @RequestParam String password,
             @RequestParam(required = false) String remember,
-            Model model,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Validar credenciales
-        String[] foundUser = null;
-        for (String[] validUser : VALID_USERS) {
-            if (validUser[0].equals(user) && validUser[1].equals(pass)) {
-                foundUser = validUser;
-                break;
-            }
-        }
-
-        if (foundUser != null) {
-            // Login exitoso - guardar en sesión
-            session.setAttribute("userSession", foundUser[0]);
-            session.setAttribute("userName", foundUser[2]);
-
-            if ("on".equals(remember)) {
-                session.setMaxInactiveInterval(30 * 24 * 60 * 60); // 30 días
-            }
-
-            return "redirect:/dashboard";
-        } else {
-            // Login fallido
-            redirectAttributes.addFlashAttribute("error", "Usuario o contraseña incorrectos. Intenta con: admin@example.com / admin123");
-            return "redirect:/";
-        }
+        return authService.authenticate(email, password)
+                .map(userName -> {
+                    session.setAttribute("userSession", email);
+                    session.setAttribute("userName", userName);
+                    if ("on".equals(remember)) {
+                        session.setMaxInactiveInterval(30 * 24 * 60 * 60);
+                    }
+                    return "redirect:/dashboard";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Credenciales incorrectas");
+                    return "redirect:/";
+                });
     }
+
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();

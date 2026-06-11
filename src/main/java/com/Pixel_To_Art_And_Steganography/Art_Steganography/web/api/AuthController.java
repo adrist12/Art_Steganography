@@ -1,22 +1,32 @@
 package com.Pixel_To_Art_And_Steganography.Art_Steganography.web.api;
 
-// Clase placeholder para WebAuthn - sin anotaciones Spring para evitar conflicto de beans
-// Tu compañero puede agregar @RestController cuando implemente la lógica completa
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("webauthn")
 public class AuthController {
-
+    // ---------REGISTER MAPPING---------
+    @GetMapping("/register/options")
     public String registerOptions() {
-        return "register_options_placeholder";
+        return "register options";
     }
 
+    @PostMapping("/register/finish")
     public String registerFinish() {
-        return "register_finish_placeholder";
+        return "register finish";
     }
 
+    // ---------LOGIN MAPPING---------
+    @GetMapping("/login/options")
     public String loginOptions() {
-        return "login_options_placeholder";
+        return "login options";
     }
 
-    public String loginFinish(){
-        return "login_finish_placeholder";
+    @PostMapping("/login/finish")
+    public String loginFinish() {
+        return "login finish";
     }
 }

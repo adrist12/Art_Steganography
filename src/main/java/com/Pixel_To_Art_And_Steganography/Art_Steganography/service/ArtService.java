@@ -21,21 +21,33 @@ public class ArtService {
 
     public ArtService() {
         this.tesseract = new Tesseract();
-        // Configurar ruta de datos de Tesseract (ajustar según instalación)
-        // En Windows: "C:\\Program Files\\Tesseract OCR\\tessdata"
-        // En Mac/Linux: "/usr/share/tesseract-ocr/4.00/tessdata" o "/usr/local/share/tessdata"
-        // Si no se configura, Tesseract buscará en la ruta por defecto del sistema
-        try {
-            tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
-        } catch (Exception e) {
-            // Si no existe la ruta, Tesseract usará la ruta por defecto
-            System.out.println("Advertencia: No se pudo configurar la ruta de tessdata. Se usará la ruta por defecto.");
+
+        // 🚀 SOLUCIÓN PORTABLE: Buscamos primero una carpeta 'tessdata' local en el proyecto
+        File rutaLocalTessdata = new File("tessdata");
+
+        if (rutaLocalTessdata.exists() && rutaLocalTessdata.isDirectory()) {
+            // Si creas la carpeta en la raíz del proyecto, usará esta de forma segura
+            tesseract.setDatapath(rutaLocalTessdata.getAbsolutePath());
+            System.out.println("Tesseract OCR: Cargando datos desde el directorio local del proyecto: " + rutaLocalTessdata.getAbsolutePath());
+        } else {
+            // Si no existe la carpeta local, detectamos el sistema operativo de respaldo
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("win")) {
+                // Ruta estándar si instalaste Tesseract en Windows
+                tesseract.setDatapath("C:\\Program Files\\Tesseract-OCR\\tessdata");
+            } else {
+                // Ruta estándar para entornos Linux / despliegues
+                tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
+            }
+            System.out.println("Tesseract OCR: Carpeta local no encontrada. Usando ruta por defecto del sistema operativo.");
         }
 
         // Configurar idioma por defecto (inglés)
         tesseract.setLanguage("eng");
-        // Configurar modo de página (auto-detección)
-        tesseract.setPageSegMode(1);
+
+        // Configurar modo de página: 1 significa OSD (Orientación y detección de script automática)
+        // Cambiar a 3 (Fully automatic page segmentation, but no OSD) suele ser más estable si el 'eng.traineddata' es básico.
+        tesseract.setPageSegMode(3);
     }
 
     /**
@@ -53,14 +65,17 @@ public class ArtService {
         File archivoTemporal = null;
 
         try {
-            // Guardar el MultipartFile en un archivo temporal
+            // Guardar el MultipartFile en un archivo temporal de forma segura
             archivoTemporal = File.createTempFile("tesseract_", "_" + imagen.getOriginalFilename());
             try (FileOutputStream fos = new FileOutputStream(archivoTemporal)) {
                 fos.write(imagen.getBytes());
             }
 
-            // Ejecutar OCR
-            String textoExtraido = tesseract.doOCR(archivoTemporal);
+            // Ejecutar OCR de forma sincronizada para proteger el hilo de memoria nativa de JNA
+            String textoExtraido;
+            synchronized (this) {
+                textoExtraido = tesseract.doOCR(archivoTemporal);
+            }
 
             // Limpiar el texto (eliminar espacios extra y líneas vacías)
             textoExtraido = limpiarTexto(textoExtraido);
@@ -68,11 +83,11 @@ public class ArtService {
             return textoExtraido;
 
         } catch (TesseractException e) {
-            throw new RuntimeException("Error en el motor OCR: " + e.getMessage(), e);
+            throw new RuntimeException("Error en el motor OCR: Revise si 'eng.traineddata' existe en la ruta configurada. " + e.getMessage(), e);
         } catch (IOException e) {
             throw new RuntimeException("Error al procesar la imagen: " + e.getMessage(), e);
         } finally {
-            // Eliminar archivo temporal
+            // Garantizar la eliminación del archivo temporal para no llenar el disco
             if (archivoTemporal != null && archivoTemporal.exists()) {
                 archivoTemporal.delete();
             }
@@ -100,5 +115,4 @@ public class ArtService {
 
         return sb.toString().trim();
     }
-
 }

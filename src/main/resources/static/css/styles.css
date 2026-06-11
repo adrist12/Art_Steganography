@@ -1514,4 +1514,110 @@ input:focus, select:focus, textarea:focus {
     .nav-logo-text {
         font-size: 12px;
     }
+    /* ==================== CENTRO DE SEGURIDAD INTERNA ==================== */
+
+    /* Contenedor principal estilizado sin romper el flujo del navbar */
+    .security-main-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+        width: 100%;
+        font-family: 'Courier New', monospace;
+    }
+
+    /* Título con efecto glitch e iluminación */
+    .matrix-title-security {
+        color: #00ff41;
+        text-shadow: 0 0 10px #00ff41;
+        font-size: 26px;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    /* Cuadrícula responsiva de dos columnas */
+    .matrix-grid-security {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    /* Cajas contenedoras estilo Terminal */
+    .matrix-box-security {
+        background: rgba(15, 23, 42, 0.95);
+        border: 2px solid #00ff41;
+        padding: 30px;
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.15);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .matrix-box-security h3 {
+        color: #00ff41;
+        font-size: 16px;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    /* Textos informativos de la terminal */
+    .terminal-info-text {
+        color: #00ff41;
+        font-size: 13px;
+        opacity: 0.8;
+        margin-bottom: 20px;
+    }
+
+    .matrix-glow-status {
+        color: #00ffff;
+        text-shadow: 0 0 8px #00ffff;
+        font-weight: bold;
+    }
+
+    /* Ajustes de espacio para los inputs */
+    .matrix-box-security .matrix-input-group {
+        margin-bottom: 15px;
+    }
+
+    /* Botón biométrico personalizado */
+    .biometric-activation-zone {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 0;
+        border: 1px dashed rgba(0, 255, 65, 0.3);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .biometric-btn-wide {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Contenedor general para limpiar márgenes y centrar la caja */
+    .security-page-wrapper {
+        display: flex !important;
+        justify-content: center !important; /* Fuerza el centrado horizontal */
+        align-items: center !important;    /* Fuerza el centrado vertical */
+        min-height: calc(100vh - 70px);
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 40px 20px;
+        background-color: #0f172a !important; /* Elimina el fondo blanco de la pantalla */
+        box-sizing: border-box;
+    }
+
+    /* Modificador para asegurar que la caja no flote a la izquierda en esta vista */
+    .security-page-wrapper .matrix-login-box {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin: 0 auto !important; /* Auto-centrado de márgenes */
+        transform: none !important;
+        flex-shrink: 0;
+    }
 }

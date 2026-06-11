@@ -17,8 +17,8 @@
         <!-- Header -->
         <header class="art-header">
             <div class="header-content">
-                <h1>ASCII Art</h1>
-                <p>Extrae texto de imágenes usando OCR (Tesseract)</p>
+                <h1>Imagen a Texto</h1>
+                <p>Extrae texto de imágenes usando reconocimiento óptico de caracteres (OCR)</p>
             </div>
         </header>
 
@@ -36,8 +36,8 @@
         <!-- Main Content -->
         <main class="art-main">
             <section class="upload-section">
-                <h2>Convertir Imagen a Texto</h2>
-                <p class="section-description">Sube una imagen y nuestro sistema extraerá el texto utilizando reconocimiento óptico de caracteres (OCR).</p>
+                <h2>Imagen a Texto</h2>
+                <p class="section-description">Sube una imagen y nuestro sistema la convertirá a texto utilizando técnicas avanzadas de procesamiento y reconocimiento de caracteres.</p>
 
                 <form class="upload-form" id="uploadForm" th:action="@{/modules/ascii}" method="post" enctype="multipart/form-data">
                     <!-- Upload Area -->
@@ -68,34 +68,70 @@
                         <button type="button" class="btn-change-image" id="changeImageBtn">Cambiar Imagen</button>
                     </div>
 
+                    <!-- Image Analysis Section -->
+                    <div class="analysis-section" id="analysisSection" style="display: none;">
+                        <h3>Análisis de Imagen</h3>
+                        <div class="analysis-grid">
+                            <div class="analysis-item">
+                                <span class="analysis-label">Tamaño:</span>
+                                <span class="analysis-value" id="imageSize">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="analysis-label">Tipo:</span>
+                                <span class="analysis-value" id="imageType">-</span>
+                            </div>
+                            <div class="analysis-item">
+                                <span class="analysis-label">Calidad:</span>
+                                <span class="analysis-value" id="imageQuality">-</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Options -->
                     <div class="options-section">
-                        <label for="quality">Calidad de OCR:</label>
+                        <label for="quality">Calidad de Procesamiento:</label>
                         <select id="quality" name="quality" class="quality-select">
-                            <option value="fast">Rápida (menos precisa)</option>
-                            <option value="balanced" selected>Equilibrada (recomendada)</option>
-                            <option value="accurate">Alta precisión (más lenta)</option>
+                            <option value="low">Baja (Más rápido)</option>
+                            <option value="medium" selected>Media (Recomendado)</option>
+                            <option value="high">Alta (Más detallado)</option>
+                        </select>
+                    </div>
+
+                    <!-- Export Format -->
+                    <div class="export-section">
+                        <label for="exportFormat">Formato de Exportación:</label>
+                        <select id="exportFormat" name="exportFormat" class="quality-select">
+                            <option value="txt" selected>Texto (.txt)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="csv">CSV (.csv)</option>
                         </select>
                     </div>
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-convert">
                         <span class="btn-icon">🔍</span>
-                        Extraer Texto
+                        Convertir Imagen a Texto
                     </button>
                 </form>
             </section>
 
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection" style="display: none;" th:if="${resultado}">
-                <h2>Resultado</h2>
+            <!-- Results Section - Terminal Matrix Style (for Thymeleaf rendering) -->
+            <section class="results-section" id="resultsSection" th:style="${resultado == null} ? 'display: none;' : ''">
+                <h2>✅ Resultado</h2>
                 <div class="results-content">
-                    <div class="result-text">
-                        <h3>Texto Extraído:</h3>
-                        <textarea id="textOutput" class="result-textarea" rows="10" readonly th:text="${resultado}"></textarea>
-                        <div class="result-actions">
+                    <div class="terminal-output">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                        </div>
+                        <div class="terminal-body">
+                            <pre id="textOutput" class="terminal-text-output" th:text="${resultado}">Texto extraído...</pre>
+                        </div>
+                        <div class="terminal-actions">
                             <button class="btn-copy" id="copyBtn">📋 Copiar Texto</button>
                             <button class="btn-download" id="downloadBtn">📥 Descargar</button>
+                            <button class="btn-export-json" id="exportJsonBtn">📊 Exportar JSON</button>
                         </div>
                     </div>
                 </div>
@@ -114,6 +150,14 @@
 
     <th:block layout:fragment="page-scripts">
         <script>
+            // Auto-scroll to results if exists
+            document.addEventListener('DOMContentLoaded', function() {
+                const resultsSection = document.getElementById('resultsSection');
+                if (resultsSection) {
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
             // Upload Area Drag & Drop
             const uploadArea = document.getElementById('uploadArea');
             const imageInput = document.getElementById('imageInput');
@@ -161,9 +205,23 @@
                         previewImage.src = e.target.result;
                         uploadArea.style.display = 'none';
                         previewSection.style.display = 'block';
+
+                        // Mostrar análisis de imagen
+                        document.getElementById('imageSize').textContent = formatFileSize(file.size);
+                        document.getElementById('imageType').textContent = file.type || 'image/*';
+                        document.getElementById('imageQuality').textContent = document.getElementById('quality').options[document.getElementById('quality').selectedIndex].text;
+                        document.getElementById('analysisSection').style.display = 'block';
                     };
                     reader.readAsDataURL(file);
                 }
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
 
             // Change image button
@@ -205,15 +263,25 @@
                     const doc = parser.parseFromString(html, 'text/html');
 
                     const resultadoEl = doc.getElementById('textOutput');
-                    const resultsSectionEl = doc.getElementById('resultsSection');
+                    const errorEl = doc.querySelector('.alert-error');
 
-                    if (resultadoEl && resultsSectionEl) {
-                        textOutput.value = resultadoEl.value || resultadoEl.textContent;
+                    if (errorEl) {
+                        // Si hay error, mostrar alerta
+                        const errorText = errorEl.querySelector('span:last-child')?.textContent || 'Error desconocido';
+                        alert(errorText);
+                        return;
+                    }
+
+                    if (resultadoEl) {
+                        textOutput.textContent = resultadoEl.textContent || resultadoEl.value || 'No se pudo extraer texto';
                         resultsSection.style.display = 'block';
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert('No se recibió respuesta del servidor');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al procesar la imagen');
+                    alert('Error al procesar la imagen: ' + error.message);
                 } finally {
                     loadingModal.style.display = 'none';
                 }
@@ -221,7 +289,7 @@
 
             // Copy button
             copyBtn.addEventListener('click', () => {
-                const text = textOutput.value;
+                const text = textOutput.textContent;
                 navigator.clipboard.writeText(text).then(() => {
                     alert('Texto copiado al portapapeles');
                 });
@@ -229,16 +297,89 @@
 
             // Download button
             downloadBtn.addEventListener('click', () => {
+                const format = document.getElementById('exportFormat').value;
+                let content = textOutput.textContent;
+                let filename = 'resultado_ocr.txt';
+                let mimeType = 'text/plain';
+
+                if (format === 'json') {
+                    content = JSON.stringify({ texto: textOutput.textContent, fecha: new Date().toISOString() }, null, 2);
+                    filename = 'resultado_ocr.json';
+                    mimeType = 'application/json';
+                } else if (format === 'csv') {
+                    content = 'texto\n"' + textOutput.textContent.replace(/"/g, '""') + '"';
+                    filename = 'resultado_ocr.csv';
+                    mimeType = 'text/csv';
+                }
+
                 const element = document.createElement('a');
-                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(textOutput.value));
-                element.setAttribute('download', 'resultado_ocr.txt');
+                element.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(content));
+                element.setAttribute('download', filename);
                 element.style.display = 'none';
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
             });
+
+            // Export JSON button
+            const exportJsonBtn = document.getElementById('exportJsonBtn');
+            if (exportJsonBtn) {
+                exportJsonBtn.addEventListener('click', () => {
+                    const content = JSON.stringify({ texto: textOutput.textContent, fecha: new Date().toISOString() }, null, 2);
+                    const element = document.createElement('a');
+                    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(content));
+                    element.setAttribute('download', 'resultado_ocr.json');
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                });
+            }
+
+            // Canvas Matrix Effect para Art
+            const canvasArt = document.getElementById('matrixCanvasArt');
+            if (canvasArt) {
+                const ctxArt = canvasArt.getContext('2d');
+
+                canvasArt.width = window.innerWidth;
+                canvasArt.height = window.innerHeight;
+
+                const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+                const fontSize = 14;
+                const columns = canvasArt.width / fontSize;
+                const drops = [];
+
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.random() * canvasArt.height;
+                }
+
+                function drawMatrixArt() {
+                    ctxArt.fillStyle = 'rgba(10, 15, 26, 0.05)';
+                    ctxArt.fillRect(0, 0, canvasArt.width, canvasArt.height);
+
+                    ctxArt.fillStyle = 'rgba(0, 255, 65, 0.15)';
+                    ctxArt.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const char = chars.charAt(Math.floor(Math.random() * chars.length));
+                        ctxArt.fillText(char, i * fontSize, drops[i]);
+
+                        if (drops[i] * fontSize > canvasArt.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrixArt, 50);
+
+                window.addEventListener('resize', () => {
+                    canvasArt.width = window.innerWidth;
+                    canvasArt.height = window.innerHeight;
+                });
+            }
         </script>
-    </th:block>
+   </th:block>
 </th:block>
 
 </html>

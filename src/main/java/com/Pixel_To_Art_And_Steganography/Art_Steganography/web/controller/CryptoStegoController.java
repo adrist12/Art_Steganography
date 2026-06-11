@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
@@ -29,6 +30,7 @@ import java.util.Date;
 public class CryptoStegoController {
 
     private static final String UPLOAD_DIR = "uploads/stego/";
+    private static final String TEXT_DIR = "uploads/text/";
     private static final String END_DELIMITER = "ENDSTEGO";
 
     private final CryptoService cryptoService;
@@ -150,10 +152,19 @@ public class CryptoStegoController {
             byte[] decompressed = cryptoService.descomprimir(decryptedCompressed);
 
             // 4. Convertir a texto
-            String originalMessage = new String(decompressed, "UTF-8");
+            String originalMessage = new String(decompressed, StandardCharsets.UTF_8);
+
+            // 5. Guardar texto extraído para descarga
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String textFilename = "extracted_" + timestamp + ".txt";
+            Path textPath = Paths.get(TEXT_DIR);
+            Files.createDirectories(textPath);
+            Path textFilePath = textPath.resolve(textFilename);
+            Files.write(textFilePath, originalMessage.getBytes(StandardCharsets.UTF_8));
 
             model.addAttribute("success", "Mensaje extraído exitosamente");
             model.addAttribute("extractedMessage", originalMessage);
+            model.addAttribute("extractedTextFilename", textFilename);
             model.addAttribute("extractPassword", password);
             return "./modules/steganography";
 
@@ -179,6 +190,32 @@ public class CryptoStegoController {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
         response.setContentLength(imageBytes.length);
         response.getOutputStream().write(imageBytes);
+        response.getOutputStream().flush();
+
+        // Eliminar archivo temporal después de la descarga
+        try {
+            Files.delete(filePath);
+        } catch (IOException e) {
+            // Log pero no fallar la descarga
+        }
+    }
+
+    /**
+     * Descarga el texto extraído como archivo .txt
+     */
+    @GetMapping("/download-text")
+    public void downloadExtractedText(@RequestParam("filename") String filename, HttpServletResponse response) throws IOException {
+        Path filePath = Paths.get(TEXT_DIR).resolve(filename);
+        if (!Files.exists(filePath)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Archivo no encontrado");
+            return;
+        }
+
+        byte[] textBytes = Files.readAllBytes(filePath);
+        response.setContentType("text/plain; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.setContentLength(textBytes.length);
+        response.getOutputStream().write(textBytes);
         response.getOutputStream().flush();
 
         // Eliminar archivo temporal después de la descarga

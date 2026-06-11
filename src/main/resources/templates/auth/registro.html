@@ -116,6 +116,9 @@
                 <span class="btn-text">REGISTRARSE EN EL SISTEMA</span>
                 <span class="btn-glow"></span>
             </button>
+            <button id="btnWebAuthnRegister" type="button" class="matrix-btn">
+                📱 Registrarse con Huella / FaceID
+            </button>
         </form>
 
 
@@ -128,7 +131,7 @@
     </div>
 </div>
 
-<script>
+<script type ="module">
     // Canvas Matrix Effect
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
@@ -203,6 +206,26 @@
             errorAlert.style.animation = 'fadeOut 0.5s ease forwards';
         }, 5000);
     }
+    //Uso del WebAuthn
+    import { registerCredential } from '/js/WebAuthn.js';
+
+    document.getElementById('btnWebAuthnRegister').addEventListener('click', async () => {
+        const nombre = document.getElementById('nombre').value;
+        const email = document.getElementById('user').value;
+
+        if (!nombre || !email) {
+            alert("Por favor ingresa nombre y email primero.");
+            return;
+        }
+
+        try {
+            await registerCredential(email, nombre);
+            alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+            window.location.href = "/auth/login";
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    });
 </script>
 </body>
 </html>

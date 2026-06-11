@@ -11,10 +11,14 @@ public interface WebAuthnCredentialRepository extends JpaRepository<WebAuthnCred
     // Todas las credenciales de un usuario
     // Usada en: mostrar dispositivos registrados, login (buscar candidatos)
     List<WebAuthnCredential> findByUsuario(User usuario);
-    // Buscar por el ID que manda el browser durante el login
-    // Usada en: WebAuthnService.finishLogin()
+
+
     Optional<WebAuthnCredential> findByCredentialId(byte[] credentialId);
 
     boolean existsByUsuario(User usuario);
+
+    // Extra útil: Contar credenciales para saber si el usuario tiene WebAuthn activado
+    long countByUsuario(User usuario);
+
 
 }

@@ -1,38 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net/thymeleaf/layout"
       layout:decorate="~{layout/base}">
-<head>
 
-    <title>Dashboard</title>
-</head>
-<body class="dashboard-page">
-    <th:block layout:fragment="content">
+<th:block layout:fragment="page_styles">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</th:block>
+
+<th:block layout:fragment="content">
+    <!-- Fondo animado Matrix para el dashboard -->
+    <div class="matrix-bg-dashboard">
+        <canvas id="matrixCanvasDashboard"></canvas>
+    </div>
+
     <div class="dashboard-container">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <h1>Art Steganography</h1>
-            <p>Sistema Inteligente de Conversión de Imágenes</p>
-
-            <div class="user-info">
-                <div class="user-greeting">
-                    <span th:text="'Bienvenido, ' + ${userName}">Bienvenido, Usuario</span>
-                </div>
-                <form th:action="@{/auth/logout}" method="post">
-                    <button type="submit" class="btn_cerrar_sesion">
-                        Cerrar Sesión
-                    </button>
-                </form>
-            </div>
-        </header>
-
         <!-- Main Content -->
-        <div class="dashboard-content">
+        <main class="dashboard-main">
             <div class="sections-grid">
                 <!-- Tarjeta Art -->
                 <div class="section-card">
-                    <span class="section-icon">🎨</span>
-                    <h3>Convertir Imagen a Texto</h3>
+                    <div class="card-header">
+                        <span class="section-icon">𒆜</span>
+                        <h3>Imagen a Texto</h3>
+                    </div>
                     <p>Convierte imágenes en texto utilizando técnicas avanzadas de procesamiento y reconocimiento de caracteres.</p>
                     
                     <ul class="features">
@@ -42,13 +32,18 @@
                         <li>Procesamiento de alta calidad</li>
                     </ul>
                     
-                    <a th:href="@{/modules/ascii}" class="btn-access">Ir a Conversión</a>
+                    <a th:href="@{/modules/ascii}" class="btn-access">
+                        <span class="btn-prefix">$</span>
+                        Ir a ASCII Art
+                    </a>
                 </div>
 
                 <!-- Tarjeta Esteganografía & Criptografía -->
                 <div class="section-card">
-                    <span class="section-icon">🔐🔒</span>
-                    <h3>Esteganografía & Criptografía</h3>
+                    <div class="card-header">
+                        <span class="section-icon">𒐬</span>
+                        <h3>Esteganografía & Criptografía</h3>
+                    </div>
                     <p>Oculta mensajes secretos en imágenes con cifrado AES-256-GCM y compresión GZIP. Comunicaciones seguras y privadas.</p>
                     
                     <ul class="features">
@@ -59,12 +54,63 @@
                         <li>Máxima privacidad</li>
                     </ul>
                     
-                    <a th:href="@{/stego}" class="btn-access">Ir a Esteganografía & Criptografía</a>
+                    <a th:href="@{/stego}" class="btn-access">
+                        <span class="btn-prefix">$</span>
+                        Ir a Estega & Cripto
+                    </a>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
-    </th:block>
+</th:block>
 
-</body>
+<th:block layout:fragment="page-scripts">
+    <script>
+        // Canvas Matrix Effect para Dashboard
+        const canvasDash = document.getElementById('matrixCanvasDashboard');
+        if (canvasDash) {
+            const ctxDash = canvasDash.getContext('2d');
+
+            canvasDash.width = window.innerWidth;
+            canvasDash.height = window.innerHeight;
+
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const fontSize = 14;
+            const columns = canvasDash.width / fontSize;
+            const drops = [];
+
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * canvasDash.height;
+            }
+
+            function drawMatrixDash() {
+                ctxDash.fillStyle = 'rgba(10, 15, 26, 0.05)';
+                ctxDash.fillRect(0, 0, canvasDash.width, canvasDash.height);
+
+                ctxDash.fillStyle = 'rgba(0, 255, 65, 0.15)';
+                ctxDash.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const char = chars.charAt(Math.floor(Math.random() * chars.length));
+                    ctxDash.fillText(char, i * fontSize, drops[i]);
+
+                    if (drops[i] * fontSize > canvasDash.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+
+                requestAnimationFrame(drawMatrixDash);
+            }
+
+            drawMatrixDash();
+
+            window.addEventListener('resize', () => {
+                canvasDash.width = window.innerWidth;
+                canvasDash.height = window.innerHeight;
+            });
+        }
+    </script>
+</th:block>
+
 </html>

@@ -1,25 +1,25 @@
-<!-- fragments/navbar.html                                        -->
-<!-- No usa layout:decorate — NO es una página completa          -->
-<!-- Es solo una pieza, como un componente                       -->
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
+<!-- fragments/navbar.html -->
+<!-- No usa layout:decorate — NO es una página completa -->
+<!-- Es solo una pieza, como un componente -->
 
-<nav th:fragment="navbar">
-    <ul>
-        <li><a th:href="@{/dashboard}">Inicio</a></li>
-        <li><a th:href="@{/modules/stego}">Esteganografía</a></li>
-        <li><a th:href="@{/modules/ascii}">ASCII Art</a></li>
-        <li>
-            <form th:action="@{/auth/logout}" method="post">
-                <button type="submit" class="btn_cerrar_sesion">
-                    Cerrar Sesión
-                </button>
-            </form>
-        </li>
+<nav th:fragment="navbar" class="matrix-navbar">
+    <div class="nav-brand">
+        <a th:href="@{/dashboard}" class="nav-logo">
+            <img th:src="@{/images/logo.jpg}" alt="Logo" class="nav-logo-img">
+            <span class="nav-logo-text">ART STEGANOGRAPHY</span>
+        </a>
+    </div>
+    <ul class="nav-links">
+        <li><a th:href="@{/dashboard}" class="nav-link">Inicio</a></li>
+        <li><a th:href="@{/stego}" class="nav-link">Estega & Cripto</a></li>
+        <li><a th:href="@{/modules/ascii}" class="nav-link">ASCII Art</a></li>
     </ul>
-
+    <div class="nav-user">
+        <form th:action="@{/auth/logout}" method="post" class="nav-logout-form">
+            <button type="submit" class="btn-logout-nav">
+                <span class="btn-icon">⏻</span>
+                <span class="btn-text">CERRAR SESIÓN</span>
+            </button>
+        </form>
+    </div>
 </nav>
-
-</body>
-</html>

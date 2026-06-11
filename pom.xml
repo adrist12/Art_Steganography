@@ -81,6 +81,13 @@
             <artifactId>webauthn-server-core</artifactId>
             <version>2.5.0</version>
         </dependency>
+
+        <!-- Tesseract OCR para extraer texto de imágenes -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.11.0</version>
+        </dependency>
     </dependencies>
 
 

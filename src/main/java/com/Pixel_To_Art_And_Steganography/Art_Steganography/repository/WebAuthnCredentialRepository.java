@@ -10,11 +10,11 @@ import com.Pixel_To_Art_And_Steganography.Art_Steganography.domain.WebAuthnCrede
 public interface WebAuthnCredentialRepository extends JpaRepository<WebAuthnCredential, Long> {
     // Todas las credenciales de un usuario
     // Usada en: mostrar dispositivos registrados, login (buscar candidatos)
-    List<WebAuthnCredential> findByUser(User usuario);
+    List<WebAuthnCredential> findByUsuario(User usuario);
     // Buscar por el ID que manda el browser durante el login
     // Usada en: WebAuthnService.finishLogin()
     Optional<WebAuthnCredential> findByCredentialId(byte[] credentialId);
 
-    boolean existsByUser(User usuario);
+    boolean existsByUsuario(User usuario);
 
 }

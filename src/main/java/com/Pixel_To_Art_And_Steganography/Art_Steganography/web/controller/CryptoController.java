@@ -9,8 +9,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.Base64;
 
+/**
+ * Controlador para el módulo de Criptografía
+ * Rutas: /crypto
+ *
+ * Flujo: texto → comprimir → cifrar → ocultar en imagen
+ * Flujo inverso: imagen → extraer → descifrar → descomprimir → texto original
+ */
 @Controller
 @RequestMapping("/crypto")
 public class CryptoController {
@@ -22,7 +28,7 @@ public class CryptoController {
     }
 
     /**
-     * Muestra la página principal del módulo de criptografía.
+     * GET /crypto - Muestra la página principal de criptografía
      */
     @GetMapping
     public String mostrarCrypto(Model model, HttpSession session) {
@@ -33,12 +39,11 @@ public class CryptoController {
     }
 
     /**
-     * Cifra un texto usando AES-GCM con compresión previa.
-     * Flujo: texto → comprimir → cifrar → Base64
+     * POST /crypto/cifrar - Cifra un texto con AES-256-GCM y compresión GZIP
      */
-    @PostMapping("/encrypt")
-    public String encryptText(
-            @RequestParam String plaintext,
+    @PostMapping("/cifrar")
+    public String cifrarTexto(
+            @RequestParam String texto,
             @RequestParam String password,
             Model model,
             HttpSession session,
@@ -49,7 +54,7 @@ public class CryptoController {
         }
 
         try {
-            if (plaintext == null || plaintext.trim().isEmpty()) {
+            if (texto == null || texto.trim().isEmpty()) {
                 model.addAttribute("error", "El texto a cifrar no puede estar vacío");
                 return "./modules/crypto";
             }
@@ -59,10 +64,13 @@ public class CryptoController {
                 return "./modules/crypto";
             }
 
-            String encrypted = cryptoService.encrypt(plaintext, password);
-            model.addAttribute("encryptedResult", encrypted);
-            model.addAttribute("originalText", plaintext);
-            model.addAttribute("success", "Texto cifrado exitosamente");
+            // Flujo: texto → comprimir → cifrar
+            String resultadoCifrado = cryptoService.comprimirYCifrarV2(texto, password);
+
+            model.addAttribute("textoOriginal", texto);
+            model.addAttribute("textoCifrado", resultadoCifrado);
+            model.addAttribute("success", "Texto cifrado exitosamente con AES-256-GCM y compresión GZIP");
+
             return "./modules/crypto";
 
         } catch (Exception e) {
@@ -72,12 +80,11 @@ public class CryptoController {
     }
 
     /**
-     * Descifra un texto cifrado con AES-GCM.
-     * Flujo: Base64 → descifrar → descomprimir → texto original
+     * POST /crypto/descifrar - Descifra un texto cifrado y lo descomprime
      */
-    @PostMapping("/decrypt")
-    public String decryptText(
-            @RequestParam String encryptedText,
+    @PostMapping("/descifrar")
+    public String descifrarTexto(
+            @RequestParam String textoCifrado,
             @RequestParam String password,
             Model model,
             HttpSession session,
@@ -88,7 +95,7 @@ public class CryptoController {
         }
 
         try {
-            if (encryptedText == null || encryptedText.trim().isEmpty()) {
+            if (textoCifrado == null || textoCifrado.trim().isEmpty()) {
                 model.addAttribute("error", "El texto cifrado no puede estar vacío");
                 return "./modules/crypto";
             }
@@ -98,42 +105,56 @@ public class CryptoController {
                 return "./modules/crypto";
             }
 
-            String decrypted = cryptoService.decrypt(encryptedText, password);
-            model.addAttribute("decryptedResult", decrypted);
-            model.addAttribute("encryptedInput", encryptedText);
+            // Flujo inverso: descifrar → descomprimir → texto original
+            String textoDescifrado = cryptoService.descifrarYDescomprimirV2(textoCifrado, password);
+
+            model.addAttribute("textoCifrado", textoCifrado);
+            model.addAttribute("textoDescifrado", textoDescifrado);
             model.addAttribute("success", "Texto descifrado exitosamente");
+
             return "./modules/crypto";
 
         } catch (Exception e) {
-            model.addAttribute("error", "Error al descifrar: " + e.getMessage() + ". Verifique la contraseña.");
+            model.addAttribute("error", "Error al descifrar: " + e.getMessage() +
+                    ". Verifique que la contraseña sea correcta.");
             return "./modules/crypto";
         }
     }
 
     /**
-     * Comprime datos de texto usando GZIP.
+     * POST /crypto/comprimir - Comprime un texto usando GZIP
      */
-    @PostMapping("/compress")
-    public String compressText(
-            @RequestParam String textToCompress,
+    @PostMapping("/comprimir")
+    public String comprimirTexto(
+            @RequestParam String texto,
             Model model,
-            HttpSession session) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
 
         try {
-            if (textToCompress == null || textToCompress.trim().isEmpty()) {
+            if (texto == null || texto.trim().isEmpty()) {
                 model.addAttribute("error", "El texto a comprimir no puede estar vacío");
                 return "./modules/crypto";
             }
 
-            byte[] compressed = cryptoService.compress(textToCompress.getBytes("UTF-8"));
-            String compressedBase64 = Base64.getEncoder().encodeToString(compressed);
-            model.addAttribute("compressedResult", compressedBase64);
-            model.addAttribute("originalText", textToCompress);
-            model.addAttribute("success", "Datos comprimidos exitosamente");
+            byte[] datosComprimidos = cryptoService.comprimir(texto.getBytes("UTF-8"));
+            String resultadoBase64 = java.util.Base64.getEncoder().encodeToString(datosComprimidos);
+
+            long tamanoOriginal = texto.getBytes("UTF-8").length;
+            long tamanoComprimido = datosComprimidos.length;
+            double ratio = ((double) tamanoComprimido / tamanoOriginal) * 100;
+
+            model.addAttribute("textoOriginal", texto);
+            model.addAttribute("textoComprimido", resultadoBase64);
+            model.addAttribute("tamanoOriginal", tamanoOriginal);
+            model.addAttribute("tamanoComprimido", tamanoComprimido);
+            model.addAttribute("ratioCompresion", String.format("%.2f", ratio));
+            model.addAttribute("success", "Texto comprimido exitosamente con GZIP");
+
             return "./modules/crypto";
 
         } catch (Exception e) {
@@ -143,34 +164,38 @@ public class CryptoController {
     }
 
     /**
-     * Descomprime datos GZIP.
+     * POST /crypto/descomprimir - Descomprime un texto comprimido con GZIP
      */
-    @PostMapping("/decompress")
-    public String decompressText(
-            @RequestParam String compressedText,
+    @PostMapping("/descomprimir")
+    public String descomprimirTexto(
+            @RequestParam String textoComprimido,
             Model model,
-            HttpSession session) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         if (session.getAttribute("userSession") == null) {
             return "redirect:/";
         }
 
         try {
-            if (compressedText == null || compressedText.trim().isEmpty()) {
+            if (textoComprimido == null || textoComprimido.trim().isEmpty()) {
                 model.addAttribute("error", "El texto comprimido no puede estar vacío");
                 return "./modules/crypto";
             }
 
-            byte[] compressed = Base64.getDecoder().decode(compressedText);
-            byte[] decompressed = cryptoService.decompress(compressed);
-            String decompressedText = new String(decompressed, "UTF-8");
-            model.addAttribute("decompressedResult", decompressedText);
-            model.addAttribute("compressedInput", compressedText);
-            model.addAttribute("success", "Datos descomprimidos exitosamente");
+            byte[] datosComprimidos = java.util.Base64.getDecoder().decode(textoComprimido);
+            byte[] datosDescomprimidos = cryptoService.descomprimir(datosComprimidos);
+            String textoDescomprimido = new String(datosDescomprimidos, "UTF-8");
+
+            model.addAttribute("textoComprimido", textoComprimido);
+            model.addAttribute("textoDescomprimido", textoDescomprimido);
+            model.addAttribute("success", "Texto descomprimido exitosamente");
+
             return "./modules/crypto";
 
         } catch (Exception e) {
-            model.addAttribute("error", "Error al descomprimir: " + e.getMessage());
+            model.addAttribute("error", "Error al descomprimir: " + e.getMessage() +
+                    ". Verifique que el texto esté correctamente codificado en Base64.");
             return "./modules/crypto";
         }
     }

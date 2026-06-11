@@ -1,24 +1,10 @@
-<!-- fragments/navbar.html                                        -->
-<!-- No usa layout:decorate — NO es una página completa          -->
-<!-- Es solo una pieza, como un componente                       -->
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
+<!-- fragments/footer.html -->
 
-<footer th:fragment="footer">
-
-    <img class="footer_img"
-         th:src="@{/images/logo.jpg}"
-         alt="Logo Artsega">
-
-    <p>
-        &copy;
-        <!-- Opción A — con #temporals (Thymeleaf 3+)             -->
-        <span th:text="${#temporals.year(#temporals.createNow())}">2026</span>
-        Artsega. Todos los derechos reservados.
-    </p>
-
+<footer th:fragment="footer" class="dashboard-footer">
+    <div class="footer-content">
+        <img th:src="@{/images/logo.jpg}" alt="CODE_INTERCEPTOR" class="footer-logo">
+        <p class="footer-text">
+            Art Steganography. A & A
+        </p>
+    </div>
 </footer>
-
-</body>
-</html>

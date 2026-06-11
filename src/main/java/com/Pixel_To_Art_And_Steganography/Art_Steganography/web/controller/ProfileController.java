@@ -18,7 +18,6 @@ public class ProfileController {
 
     private final UserRepository userRepository;
 
-    // Inyección por constructor estándar para el repositorio
     public ProfileController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -44,40 +43,38 @@ public class ProfileController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // 1. Obtener el email del usuario desde la sesión HTTP activa
         String userEmail = (String) session.getAttribute("userSession");
 
         if (userEmail == null) {
             return "redirect:/auth/login";
         }
 
-        // 2. Validar que las contraseñas coincidan antes del procesamiento criptográfico
+        // Si fallan las contraseñas, SÍ lo dejamos en la página de seguridad con el error
         if (!nuevaContrasena.equals(confirmarContrasena)) {
             redirectAttributes.addFlashAttribute("error", "Las contraseñas de control no coinciden.");
             return "redirect:/profile/security";
         }
 
         try {
-            // 3. Buscar el usuario en la base de datos
             User user = userRepository.findByEmail(userEmail)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario de sesión no válido."));
 
-            // 4. Transformación Criptográfica con jBCrypt Nativo
-            // BCrypt.gensalt() genera una sal aleatoria segura de forma automática.
-            // BCrypt.hashpw() fusiona la contraseña en texto plano con la sal y computa el hash.
+            // Hashing adaptativo con jBCrypt
             String passwordEncriptada = BCrypt.hashpw(nuevaContrasena, BCrypt.gensalt());
-
-            // Asignamos el hash seguro de 60 caracteres a la entidad
             user.setContrasena(passwordEncriptada);
 
             // Persistencia en base de datos
             userRepository.save(user);
 
-            redirectAttributes.addFlashAttribute("success", "Llave tradicional actualizada con éxito usando jBCrypt nativo.");
+            redirectAttributes.addFlashAttribute("success", "Llave tradicional actualizada con éxito.");
+
+            // 🚀 RUTA DE ÉXITO: Rompe el bucle y redirige al Dashboard principal
+            return "redirect:/dashboard";
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Falla en el sistema de persistencia: " + e.getMessage());
+            // Si hay un error de base de datos, lo mantenemos en la vista de seguridad para ver el mensaje
+            return "redirect:/profile/security";
         }
-
-        return "redirect:/profile/security";
     }
 }

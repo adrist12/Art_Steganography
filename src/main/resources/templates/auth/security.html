@@ -5,12 +5,8 @@
     <title>Matrix - Centro de Seguridad</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="matrix-dashboard">
-<!-- Contenedor general centrado (sin interferir con el position:fixed del login) -->
-<!-- 1. Forzamos que el cuerpo de la página elimine márgenes y use el fondo oscuro original -->
 <body class="matrix-dashboard" style="margin: 0; padding: 0; background-color: #0f172a !important; min-height: 100vh;">
 
-<!-- 2. Forzamos de manera absoluta que este contenedor ocupe todo el ancho y centre la caja -->
 <div class="security-page-wrapper" style="
     display: flex !important;
     justify-content: center !important;
@@ -22,7 +18,6 @@
     padding: 40px 20px;
 ">
 
-    <!-- 3. Forzamos a la caja del login a romper cualquier posición fija o flotado a la izquierda -->
     <div class="matrix-login-box" style="
         position: relative !important;
         top: auto !important;
@@ -30,23 +25,19 @@
         margin: 0 auto !important;
         transform: none !important;
     ">
-        <!-- Línea de escaneo animada original -->
         <div class="scan-line"></div>
 
-        <!-- Puntos decorativos de la terminal -->
         <div class="terminal-header">
             <div class="terminal-dot red"></div>
             <div class="terminal-dot yellow"></div>
             <div class="terminal-dot green"></div>
         </div>
 
-        <!-- Encabezado -->
         <div class="matrix-header">
             <h1 class="glitch" data-text="SEGURIDAD">[SEGURIDAD]</h1>
             <p class="terminal-text" style="font-size: 11px;">USUARIO: <span th:text="${session.userSession}">prebacorreo@example.com</span></p>
         </div>
 
-        <!-- ================= FORMULARIO 01: CONTRASEÑA ================= -->
         <form th:action="@{/profile/update-password}" method="POST" class="matrix-form" style="margin-bottom: 30px;">
             <div class="matrix-input-group">
                 <label class="matrix-label">
@@ -72,10 +63,8 @@
             </button>
         </form>
 
-        <!-- Divisor estético estilo terminal -->
         <div style="border-top: 1px dashed #00ff41; margin: 25px 0; opacity: 0.5;"></div>
 
-        <!-- ================= SECCIÓN 02: BIOMETRÍA ================= -->
         <div class="matrix-form">
             <div class="matrix-input-group">
                 <label class="matrix-label">
@@ -97,7 +86,6 @@
             </button>
         </div>
 
-        <!-- Footer interno de la caja -->
         <div class="matrix-footer" style="margin-top: 25px; padding-top: 10px;">
             <p class="terminal-text-small">SISTEMA PROTEGIDO CON CIFRADO ART-STEGO</p>
         </div>
@@ -112,7 +100,6 @@
         const nombre = document.getElementById('userNameLogged').value;
 
         try {
-            // Invocamos el utilitario criptográfico que ya reparamos y funciona
             const resultado = await registerCredential(email, nombre);
             if(resultado.success) {
                 alert("¡Éxito! Tu huella dactilar ha sido enlazada correctamente a tu perfil.");

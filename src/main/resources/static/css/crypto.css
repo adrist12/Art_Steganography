@@ -1,56 +1,48 @@
-/* ==================== MÓDULO DE CRIPTOGRAFÍA - TEMA MATRIX ==================== */
+/* ============================================
+   CRYPTO MODULE - Matrix Theme Styles
+   ============================================ */
 
-/* Variables específicas del módulo */
+/* Variables del tema Matrix */
+:root {
+    --matrix-green: #00ff41;
+    --matrix-dark-green: #003b00;
+    --matrix-light-green: #00ff9d;
+    --matrix-bg: #0a0a0a;
+    --matrix-card-bg: #0d1117;
+    --matrix-border: #1a3a1a;
+    --matrix-text: #c9d1d9;
+    --matrix-text-muted: #8b949e;
+    --matrix-error: #ff4444;
+    --matrix-success: #00ff41;
+    --matrix-warning: #ffaa00;
+    --matrix-btn-primary: #238636;
+    --matrix-btn-hover: #2ea043;
+    --matrix-input-bg: #161b22;
+    --matrix-input-border: #30363d;
+    --matrix-shadow: 0 4px 20px rgba(0, 255, 65, 0.1);
+}
+
+/* Contenedor principal */
 .crypto-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #0a0f1a;
-    color: #e0e0e0;
-    font-family: 'Courier New', 'Consolas', monospace;
-    position: relative;
-    overflow-x: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-in;
 }
 
-/* Fondo Matrix animado */
-.crypto-container::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(ellipse at center, rgba(0, 255, 65, 0.03) 0%, transparent 70%),
-        linear-gradient(180deg, #0a0f1a 0%, #0d1525 50%, #0a0f1a 100%);
-    z-index: -2;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.crypto-container::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    z-index: -1;
-    animation: gridMove 20s linear infinite;
-}
-
-@keyframes gridMove {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(50px); }
-}
-
-/* Header */
+/* Header del módulo */
 .crypto-header {
-    background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 200, 50, 0.05) 100%);
-    border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-    padding: 30px 40px;
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--matrix-card-bg) 0%, #0d2818 100%);
+    border: 1px solid var(--matrix-border);
+    border-radius: 12px;
     position: relative;
     overflow: hidden;
 }
@@ -59,77 +51,53 @@
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
-    animation: headerScan 4s ease-in-out infinite;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--matrix-green), transparent);
+    animation: scanline 3s linear infinite;
 }
 
-@keyframes headerScan {
-    0% { left: -100%; }
-    100% { left: 100%; }
+@keyframes scanline {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
-.header-content h1 {
-    font-size: 32px;
-    color: #00ff41;
-    text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
-    letter-spacing: 4px;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
+.header-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    animation: pulse 2s ease-in-out infinite;
 }
 
-.header-content p {
-    font-size: 14px;
-    color: rgba(0, 255, 65, 0.7);
-    letter-spacing: 2px;
-    position: relative;
-    z-index: 1;
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
-.header-decoration {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 3px;
-    opacity: 0.3;
+.crypto-header h1 {
+    color: var(--matrix-green);
+    font-size: 2rem;
+    margin: 0.5rem 0;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    font-family: 'Courier New', monospace;
 }
 
-.matrix-char {
-    color: #00ff41;
-    font-size: 14px;
-    animation: matrixFall 2s ease-in-out infinite;
-}
-
-@keyframes matrixFall {
-    0%, 100% { opacity: 0.3; transform: translateY(0); }
-    50% { opacity: 1; transform: translateY(-5px); }
-}
-
-/* Main Content */
-.crypto-main {
-    flex: 1;
-    padding: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
+.header-subtitle {
+    color: var(--matrix-text-muted);
+    font-size: 1rem;
+    margin: 0;
+    font-family: 'Courier New', monospace;
 }
 
 /* Alertas */
 .alert {
-    padding: 16px 20px;
+    padding: 1rem 1.5rem;
     border-radius: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    animation: slideDown 0.3s ease;
-    border: 1px solid;
+    gap: 0.75rem;
+    animation: slideDown 0.3s ease-out;
 }
 
 @keyframes slideDown {
@@ -138,487 +106,427 @@
 }
 
 .alert-success {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: #10b981;
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid var(--matrix-green);
+    color: var(--matrix-green);
 }
 
 .alert-error {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid var(--matrix-error);
+    color: var(--matrix-error);
 }
 
 .alert-icon {
-    font-size: 18px;
+    font-size: 1.25rem;
     font-weight: bold;
 }
 
-/* Secciones */
-.crypto-section {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(0, 255, 65, 0.2);
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 30px;
-    backdrop-filter: blur(10px);
+/* Tabs de navegación */
+.crypto-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--matrix-border);
+    padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 1px solid var(--matrix-border);
+    color: var(--matrix-text-muted);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
+    position: relative;
 }
 
-.crypto-section:hover {
-    border-color: rgba(0, 255, 65, 0.4);
-    box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+.tab-btn:hover {
+    background: rgba(0, 255, 65, 0.05);
+    color: var(--matrix-green);
+    border-color: var(--matrix-green);
 }
 
-.section-header {
+.tab-btn.active {
+    background: rgba(0, 255, 65, 0.1);
+    color: var(--matrix-green);
+    border-color: var(--matrix-green);
+    border-bottom-color: transparent;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--matrix-green);
+}
+
+/* Contenido de tabs */
+.crypto-content {
+    position: relative;
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.4s ease-in;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Tarjetas de panel */
+.panel-card {
+    background: var(--matrix-card-bg);
+    border: 1px solid var(--matrix-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--matrix-shadow);
+}
+
+.panel-header {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--matrix-border);
 }
 
-.section-icon {
-    font-size: 28px;
-    filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5));
+.panel-icon {
+    font-size: 2rem;
 }
 
-.section-header h2 {
-    font-size: 22px;
-    color: #00ff41;
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    letter-spacing: 2px;
+.panel-header h2 {
+    color: var(--matrix-green);
+    font-size: 1.5rem;
+    margin: 0;
+    font-family: 'Courier New', monospace;
 }
 
-.section-description {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
+.panel-description {
+    color: var(--matrix-text-muted);
+    margin-bottom: 1.5rem;
     line-height: 1.6;
-    margin-bottom: 25px;
-}
-
-.section-description strong {
-    color: #00ff41;
 }
 
 /* Formularios */
 .crypto-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.25rem;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .form-group label {
-    font-size: 13px;
-    color: rgba(0, 255, 65, 0.8);
+    color: var(--matrix-green);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
-.crypto-textarea,
-.crypto-input {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(0, 255, 65, 0.3);
+.form-group textarea,
+.form-group input {
+    background: var(--matrix-input-bg);
+    border: 1px solid var(--matrix-input-border);
+    color: var(--matrix-text);
+    padding: 0.75rem 1rem;
     border-radius: 8px;
-    padding: 14px 16px;
-    color: #e0e0e0;
-    font-family: 'Courier New', 'Consolas', monospace;
-    font-size: 14px;
-    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
     resize: vertical;
+    transition: all 0.3s ease;
 }
 
-.crypto-textarea:focus,
-.crypto-input:focus {
+.form-group textarea:focus,
+.form-group input:focus {
     outline: none;
-    border-color: #00ff41;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2), inset 0 0 10px rgba(0, 255, 65, 0.05);
+    border-color: var(--matrix-green);
+    box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1);
 }
 
-.crypto-textarea::placeholder,
-.crypto-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-}
-
-.password-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.password-input-wrapper .crypto-input {
-    width: 100%;
-    padding-right: 50px;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
+.form-group textarea::placeholder,
+.form-group input::placeholder {
+    color: var(--matrix-text-muted);
     opacity: 0.6;
-    transition: opacity 0.3s ease;
-    padding: 5px;
 }
 
-.toggle-password:hover {
-    opacity: 1;
-}
-
-/* Botones */
+/* Botones de acción */
 .btn-crypto {
-    padding: 14px 28px;
+    padding: 0.875rem 1.5rem;
     border: none;
     border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    font-family: 'Courier New', 'Consolas', monospace;
-    text-transform: uppercase;
-}
-
-.btn-icon {
-    font-size: 18px;
-}
-
-.btn-encrypt {
-    background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
-    color: #0a0f1a;
-    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
-}
-
-.btn-encrypt:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 255, 65, 0.4);
-}
-
-.btn-decrypt {
-    background: linear-gradient(135deg, #00bfff 0%, #0099cc 100%);
-    color: #0a0f1a;
-    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
-}
-
-.btn-decrypt:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 191, 255, 0.4);
-}
-
-.btn-compress {
-    background: linear-gradient(135deg, #ff6b35 0%, #cc5529 100%);
-    color: #0a0f1a;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
-}
-
-.btn-compress:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(255, 107, 53, 0.4);
-}
-
-.btn-decompress {
-    background: linear-gradient(135deg, #a855f7 0%, #8b44cc 100%);
-    color: #0a0f1a;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
-}
-
-.btn-decompress:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
-}
-
-.btn-crypto:active {
-    transform: translateY(0);
-}
-
-/* Resultados */
-.result-box {
-    margin-top: 25px;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.result-encrypted {
-    background: rgba(0, 255, 65, 0.05);
-    border-color: rgba(0, 255, 65, 0.3);
-}
-
-.result-decrypted {
-    background: rgba(0, 191, 255, 0.05);
-    border-color: rgba(0, 191, 255, 0.3);
-}
-
-.result-compressed {
-    background: rgba(255, 107, 53, 0.05);
-    border-color: rgba(255, 107, 53, 0.3);
-}
-
-.result-decompressed {
-    background: rgba(168, 85, 247, 0.05);
-    border-color: rgba(168, 85, 247, 0.3);
-}
-
-.result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.result-label {
-    font-size: 13px;
-    font-weight: 600;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-.result-encrypted .result-label { color: #00ff41; }
-.result-decrypted .result-label { color: #00bfff; }
-.result-compressed .result-label { color: #ff6b35; }
-.result-decompressed .result-label { color: #a855f7; }
-
-.btn-copy-small {
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    color: #e0e0e0;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.btn-cifrar {
+    background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+    color: white;
 }
 
-.btn-copy-small:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+.btn-cifrar:hover {
+    background: linear-gradient(135deg, #2ea043 0%, #3fb950 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(35, 134, 54, 0.4);
+}
+
+.btn-descifrar {
+    background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%);
+    color: white;
+}
+
+.btn-descifrar:hover {
+    background: linear-gradient(135deg, #388bfd 0%, #58a6ff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
+}
+
+.btn-comprimir {
+    background: linear-gradient(135deg, #9e6a03 0%, #d29922 100%);
+    color: #0a0a0a;
+}
+
+.btn-comprimir:hover {
+    background: linear-gradient(135deg, #d29922 0%, #e3b341 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(210, 153, 34, 0.4);
+}
+
+.btn-descomprimir {
+    background: linear-gradient(135deg, #8957e5 0%, #a371f7 100%);
+    color: white;
+}
+
+.btn-descomprimir:hover {
+    background: linear-gradient(135deg, #a371f7 0%, #bc8cff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(137, 87, 229, 0.4);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* Cajas de resultado */
+.result-box {
+    margin-top: 1.5rem;
+    background: rgba(0, 255, 65, 0.05);
+    border: 1px solid var(--matrix-green);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease-in;
+}
+
+.result-header {
+    background: rgba(0, 255, 65, 0.1);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--matrix-green);
+}
+
+.result-icon {
+    color: var(--matrix-green);
+    font-weight: bold;
+}
+
+.result-header span:last-child {
+    color: var(--matrix-green);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
 }
 
 .result-content {
-    margin-bottom: 10px;
+    padding: 1rem;
 }
 
 .result-textarea {
     width: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--matrix-input-bg);
+    border: 1px solid var(--matrix-input-border);
+    color: var(--matrix-text);
+    padding: 0.75rem;
     border-radius: 6px;
-    padding: 12px;
-    color: #e0e0e0;
-    font-family: 'Courier New', 'Consolas', monospace;
-    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
     resize: vertical;
-    line-height: 1.5;
+    margin-bottom: 0.75rem;
 }
 
-.result-textarea:focus {
-    outline: none;
-    border-color: rgba(0, 255, 65, 0.3);
-}
-
-.result-info {
-    text-align: right;
-}
-
-.result-info small {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 11px;
-}
-
-/* Sección de flujo */
-.flow-section {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(0, 255, 65, 0.2);
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 30px;
-}
-
-.flow-section h3 {
-    font-size: 18px;
-    color: #00ff41;
-    text-align: center;
-    margin-bottom: 25px;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-}
-
-.flow-diagram {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.flow-diagram.reverse {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(0, 255, 65, 0.1);
-}
-
-.flow-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 15px 20px;
-    background: rgba(0, 255, 65, 0.05);
-    border: 1px solid rgba(0, 255, 65, 0.2);
-    border-radius: 8px;
-    min-width: 100px;
+.btn-copy {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid var(--matrix-green);
+    color: var(--matrix-green);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
 }
 
-.flow-step:hover {
+.btn-copy:hover {
     background: rgba(0, 255, 65, 0.1);
-    border-color: rgba(0, 255, 65, 0.4);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 20px rgba(0, 255, 65, 0.2);
 }
 
-.flow-icon {
-    font-size: 24px;
-    filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.5));
+.btn-copy.copied {
+    background: var(--matrix-green);
+    color: var(--matrix-bg);
 }
 
-.flow-label {
-    font-size: 11px;
-    color: rgba(0, 255, 65, 0.8);
-    text-align: center;
+/* Estadísticas de compresión */
+.compression-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(0, 255, 65, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--matrix-border);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    color: var(--matrix-text-muted);
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
-.flow-arrow {
-    font-size: 20px;
-    color: #00ff41;
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-    animation: arrowPulse 1.5s ease-in-out infinite;
+.stat-value {
+    color: var(--matrix-green);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
 }
 
-@keyframes arrowPulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+/* Información técnica */
+.tech-info {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--matrix-card-bg);
+    border: 1px solid var(--matrix-border);
+    border-radius: 12px;
 }
 
-/* Footer */
-.crypto-footer {
-    background: rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(0, 255, 65, 0.2);
-    padding: 20px;
-    text-align: center;
-    color: rgba(0, 255, 65, 0.5);
-    font-size: 12px;
-    letter-spacing: 1px;
+.tech-info h3 {
+    color: var(--matrix-green);
+    margin-bottom: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
 }
 
-/* ==================== RESPONSIVE ==================== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: rgba(0, 255, 65, 0.03);
+    border-radius: 6px;
+    border-left: 3px solid var(--matrix-green);
+}
+
+.info-label {
+    color: var(--matrix-text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    color: var(--matrix-text);
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
+    .crypto-container {
+        padding: 1rem;
+    }
+
     .crypto-header {
-        padding: 20px;
+        padding: 1.5rem;
     }
 
-    .header-content h1 {
-        font-size: 24px;
-        letter-spacing: 2px;
+    .crypto-header h1 {
+        font-size: 1.5rem;
     }
 
-    .header-decoration {
+    .crypto-tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .tab-btn.active::after {
         display: none;
     }
 
-    .crypto-main {
-        padding: 20px 15px;
+    .panel-card {
+        padding: 1.5rem;
     }
 
-    .crypto-section {
-        padding: 20px 15px;
+    .compression-stats {
+        grid-template-columns: 1fr;
     }
 
-    .section-header h2 {
-        font-size: 18px;
-    }
-
-    .flow-diagram {
-        gap: 5px;
-    }
-
-    .flow-step {
-        padding: 10px 12px;
-        min-width: 70px;
-    }
-
-    .flow-icon {
-        font-size: 20px;
-    }
-
-    .flow-label {
-        font-size: 9px;
-    }
-
-    .flow-arrow {
-        font-size: 16px;
-    }
-
-    .btn-crypto {
-        padding: 12px 20px;
-        font-size: 13px;
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 480px) {
-    .crypto-header {
-        padding: 15px;
+    .crypto-header h1 {
+        font-size: 1.25rem;
     }
 
-    .header-content h1 {
-        font-size: 20px;
+    .header-icon {
+        font-size: 2rem;
     }
 
-    .crypto-main {
-        padding: 15px 10px;
-    }
-
-    .crypto-section {
-        padding: 15px 10px;
-        margin-bottom: 20px;
-    }
-
-    .flow-diagram {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .flow-arrow {
-        text-align: center;
-        transform: rotate(90deg);
-    }
-
-    .flow-step {
-        flex-direction: row;
-        justify-content: center;
-        gap: 10px;
+    .btn-crypto {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
     }
 }

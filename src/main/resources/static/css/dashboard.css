@@ -1,0 +1,450 @@
+/* ==================== DASHBOARD - TEMA MATRIX ==================== */
+
+/* Fondo Matrix animado para dashboard */
+.matrix-bg-dashboard {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+#matrixCanvasDashboard {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.12;
+}
+
+.dashboard-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0a0f1a;
+    color: #e0e0e0;
+    font-family: 'Courier New', 'Consolas', monospace;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Fondo Matrix animado */
+.dashboard-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at center, rgba(0, 255, 65, 0.03) 0%, transparent 70%),
+        linear-gradient(180deg, #0a0f1a 0%, #0d1525 50%, #0a0f1a 100%);
+    z-index: -2;
+}
+
+.dashboard-container::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -1;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+}
+
+/* ==================== NAVBAR MATRIX ==================== */
+.matrix-navbar {
+    background: rgba(10, 15, 26, 0.95);
+    border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.nav-logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 65, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+    object-fit: cover;
+}
+
+.nav-logo-text {
+    font-size: 16px;
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    color: rgba(0, 255, 65, 0.7);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    padding: 8px 0;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #00ff41;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-greeting {
+    color: #e0e0e0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.terminal-prefix {
+    color: #00ff41;
+    font-weight: bold;
+}
+
+.nav-logout-form {
+    display: inline;
+}
+
+.btn-logout-nav {
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 6px;
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', 'Consolas', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.btn-logout-nav:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-logout-nav .btn-icon {
+    font-size: 14px;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.dashboard-main {
+    flex: 1;
+    padding: 50px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.section-card {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.section-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(0, 255, 65, 0.4);
+    box-shadow: 0 0 40px rgba(0, 255, 65, 0.15);
+}
+
+.card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.section-icon {
+    font-size: 48px;
+    color: #00ff41;
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    font-family: 'Courier New', 'Consolas', monospace;
+    letter-spacing: 2px;
+}
+
+.section-card h3 {
+    font-size: 20px;
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.section-card p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.section-card .features {
+    text-align: left;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+.section-card .features li {
+    list-style: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    padding: 6px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.section-card .features li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #00ff41;
+    font-weight: bold;
+}
+
+.btn-access {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+    color: #0a0f1a;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', 'Consolas', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.btn-access:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 255, 65, 0.3);
+}
+
+.btn-prefix {
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+/* ==================== FOOTER MATRIX ==================== */
+.dashboard-footer {
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(0, 255, 65, 0.2);
+    padding: 30px 40px;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.footer-logo {
+    max-width: 250px;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.footer-text {
+    color: rgba(0, 255, 65, 0.5);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .matrix-navbar {
+        padding: 0 20px;
+        height: auto;
+        min-height: 70px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-logo-text {
+        font-size: 14px;
+        letter-spacing: 2px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .nav-link {
+        font-size: 11px;
+    }
+
+    .btn-logout-nav {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .nav-user {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .dashboard-main {
+        padding: 30px 20px;
+    }
+
+    .sections-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-card {
+        padding: 25px 20px;
+    }
+
+    .section-icon {
+        font-size: 36px;
+    }
+
+    .section-card h3 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .matrix-navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .nav-logo-text {
+        font-size: 12px;
+    }
+
+    .nav-user {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-logout-nav {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dashboard-main {
+        padding: 20px 15px;
+    }
+
+    .section-card {
+        padding: 20px 15px;
+    }
+
+    .btn-access {
+        padding: 10px 20px;
+        font-size: 12px;
+    }
+
+    .footer-logo {
+        max-width: 180px;
+    }
+}

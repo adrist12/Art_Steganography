@@ -2,6 +2,7 @@ package com.Pixel_To_Art_And_Steganography.Art_Steganography.web.controller;
 
 import com.Pixel_To_Art_And_Steganography.Art_Steganography.service.CryptoService;
 import com.Pixel_To_Art_And_Steganography.Art_Steganography.service.StegoService;
+import javax.crypto.SecretKey;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -15,12 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 
 @Controller
@@ -80,10 +81,12 @@ public class CryptoStegoController {
             }
 
             // 1. Comprimir el mensaje
-            byte[] compressed = cryptoService.compress(message.getBytes("UTF-8"));
+            byte[] compressed = cryptoService.comprimir(message.getBytes("UTF-8"));
 
-            // 2. Cifrar los datos comprimidos
-            String encryptedBase64 = cryptoService.encryptBytes(compressed, password);
+            // 2. Generar clave desde password y cifrar los datos comprimidos
+            SecretKey clave = cryptoService.generarClaveDesdePassword(password);
+            byte[] encryptedBytes = cryptoService.cifrar(compressed, clave);
+            String encryptedBase64 = Base64.getEncoder().encodeToString(encryptedBytes);
 
             // 3. Ocultar en la imagen usando LSB
             BufferedImage stegoImage = stegoService.hideMessage(imageFile, encryptedBase64);
@@ -138,11 +141,13 @@ public class CryptoStegoController {
             // 1. Extraer datos ocultos de la imagen (LSB)
             String encryptedBase64 = stegoService.extractMessage(imageFile);
 
-            // 2. Descifrar los datos
-            byte[] decryptedCompressed = cryptoService.decryptBytes(encryptedBase64, password);
+            // 2. Generar clave desde password y descifrar los datos
+            SecretKey clave = cryptoService.generarClaveDesdePassword(password);
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedBase64);
+            byte[] decryptedCompressed = cryptoService.descifrar(encryptedBytes, clave);
 
             // 3. Descomprimir los datos
-            byte[] decompressed = cryptoService.decompress(decryptedCompressed);
+            byte[] decompressed = cryptoService.descomprimir(decryptedCompressed);
 
             // 4. Convertir a texto
             String originalMessage = new String(decompressed, "UTF-8");

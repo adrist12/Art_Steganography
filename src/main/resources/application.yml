@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    # Anatomía de la URL:
+    # jdbc:mysql://  → protocolo
+    # localhost:3306 → host:puerto
+    # artsega_db     → nombre de tu BD (debes crearla tú)
+    # ?useSSL=false  → parámetros de conexión
+    url: jdbc:mysql://b7uqzz99t6agtndxtdcm-mysql.services.clever-cloud.com:3306/b7uqzz99t6agtndxtdcm?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: uv7et9mdsf9rvko9        # ← tu usuario de MySQL
+    password: C1LcuGgBkZeHFJOgnP08  # ← tu contraseña
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    # Estrategia de generación del esquema:
+    # create       → borra y recrea tablas cada vez (¡peligroso en prod!)
+    # create-drop  → crea al iniciar, borra al apagar
+    # update       → actualiza sin borrar datos ✅ para desarrollo
+    # validate     → solo valida, no toca la BD ✅ para producción
+    # none         → no hace nada
+    hibernate:
+      ddl-auto: update
+
+    # Muestra el SQL que genera Hibernate en consola — útil para aprender
+    show-sql: true
+
+    properties:
+      hibernate:
+        # Formatea el SQL en consola para que sea legible
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect

@@ -1,10 +1,13 @@
 /**
- * Utilidades para WebAuthn
+ * Utilidades para WebAuthn - Art Steganography
  * Maneja la comunicación con la API Java y el navegador
  */
 
 // Función auxiliar para convertir JSON a ArrayBuffer (necesario para la API WebAuthn)
 function base64UrlToBuffer(base64url) {
+    if (!base64url) {
+        throw new Error("Se intentó convertir un valor Base64 que llegó indefinido o vacío.");
+    }
     const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
     const padLength = (4 - (base64.length % 4)) % 4;
     const padded = base64.padEnd(base64.length + padLength, '=');
@@ -27,35 +30,40 @@ function bufferToBase64Url(buffer) {
 }
 
 /**
- * 1. REGISTRO DE CREDENCIAL
+ * 1. REGISTRO DE CREDENCIAL (Passkey / Biometría)
  * Llama al backend, pide datos al navegador y envía la respuesta.
  */
-async function registerCredential(email, nombre) {
+export async function registerCredential(email, nombre) {
     try {
         // Paso 1: Obtener las opciones de registro del backend
         const optionsResponse = await fetch(`/webauthn/register/options?email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}`);
         if (!optionsResponse.ok) throw new Error("Error al obtener opciones de registro");
 
         const creationOptionsJSON = await optionsResponse.json();
+        console.log("Respuesta cruda del backend (Registro):", creationOptionsJSON);
 
-        // Paso 2: Ajustar los IDs (el backend los envía en Base64, el navegador necesita ArrayBuffer)
+        // Extraer el objeto publicKey interno que envía el backend
+        const options = creationOptionsJSON.publicKey;
+        if (!options) throw new Error("El backend no devolvió el nodo 'publicKey' esperado.");
+
+        // Paso 2: Ajustar los IDs de Base64 a ArrayBuffer para el navegador
         const publicKey = {
-            ...creationOptionsJSON,
-            challenge: base64UrlToBuffer(creationOptionsJSON.challenge),
+            ...options,
+            challenge: base64UrlToBuffer(options.challenge),
             user: {
-                ...creationOptionsJSON.user,
-                id: base64UrlToBuffer(creationOptionsJSON.user.id)
+                ...options.user,
+                id: base64UrlToBuffer(options.user.id)
             },
-            excludeCredentials: creationOptionsJSON.excludeCredentials?.map(cred => ({
+            excludeCredentials: options.excludeCredentials?.map(cred => ({
                 ...cred,
                 id: base64UrlToBuffer(cred.id)
             }))
         };
 
-        // Paso 3: Pedir al navegador que cree la credencial (Huella/FaceID/Llave)
+        // Paso 3: Pedir al navegador que cree la credencial usando el hardware (Huella/FaceID)
         const credential = await navigator.credentials.create({ publicKey });
 
-        // Paso 4: Preparar la respuesta para enviar al backend
+        // Paso 4: Preparar la respuesta serializada para enviar al backend
         const attestationResponse = {
             id: credential.id,
             rawId: bufferToBase64Url(credential.rawId),
@@ -66,7 +74,7 @@ async function registerCredential(email, nombre) {
             }
         };
 
-        // Paso 5: Enviar la respuesta al backend para guardar
+        // Paso 5: Enviar la respuesta al backend para guardar en la base de datos
         const finishResponse = await fetch('/webauthn/register/finish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -75,7 +83,7 @@ async function registerCredential(email, nombre) {
 
         if (!finishResponse.ok) {
             const error = await finishResponse.text();
-            throw new Error(error || "Error al finalizar registro");
+            throw new Error(error || "Error al finalizar registro en el servidor");
         }
 
         return { success: true, message: "¡Credencial registrada con éxito!" };
@@ -87,31 +95,36 @@ async function registerCredential(email, nombre) {
 }
 
 /**
- * 2. LOGIN CON CREDENCIAL
+ * 2. LOGIN CON CREDENCIAL (Passkey / Biometría)
  * Llama al backend, pide autenticación y valida la sesión.
  */
-async function loginCredential(email) {
+export async function loginCredential(email) {
     try {
         // Paso 1: Obtener las opciones de login (challenge) del backend
         const optionsResponse = await fetch(`/webauthn/login/options?email=${encodeURIComponent(email)}`);
         if (!optionsResponse.ok) throw new Error("Error al obtener opciones de login");
 
         const assertionOptionsJSON = await optionsResponse.json();
+        console.log("Respuesta cruda del backend (Login):", assertionOptionsJSON);
+
+        // Extraer el objeto publicKey interno para el Login
+        const options = assertionOptionsJSON.publicKey;
+        if (!options) throw new Error("El backend no devolvió el nodo 'publicKey' esperado.");
 
         // Paso 2: Ajustar los IDs a ArrayBuffer
         const publicKey = {
-            ...assertionOptionsJSON,
-            challenge: base64UrlToBuffer(assertionOptionsJSON.challenge),
-            allowCredentials: assertionOptionsJSON.allowCredentials?.map(cred => ({
+            ...options,
+            challenge: base64UrlToBuffer(options.challenge),
+            allowCredentials: options.allowCredentials?.map(cred => ({
                 ...cred,
                 id: base64UrlToBuffer(cred.id)
             }))
         };
 
-        // Paso 3: Pedir al navegador que firme (Huella/FaceID/Llave)
+        // Paso 3: Pedir al navegador que firme el desafío con el hardware biométrico
         const assertion = await navigator.credentials.get({ publicKey });
 
-        // Paso 4: Preparar la respuesta para el backend
+        // Paso 4: Preparar la firma para enviarla de vuelta al servidor
         const assertionResponse = {
             id: assertion.id,
             rawId: bufferToBase64Url(assertion.rawId),
@@ -124,7 +137,7 @@ async function loginCredential(email) {
             }
         };
 
-        // Paso 5: Enviar al backend para verificar y crear sesión
+        // Paso 5: Enviar al backend para verificar la firma criptográfica y crear sesión
         const finishResponse = await fetch('/webauthn/login/finish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -133,12 +146,12 @@ async function loginCredential(email) {
 
         if (!finishResponse.ok) {
             const error = await finishResponse.text();
-            throw new Error(error || "Error al finalizar login");
+            throw new Error(error || "Error al finalizar login en el servidor");
         }
 
         const result = await finishResponse.json();
 
-        // Redirigir si el backend lo indica
+        // Redirigir automáticamente si el backend nos indica la URL de éxito
         if (result.redirectUrl) {
             window.location.href = result.redirectUrl;
         }
